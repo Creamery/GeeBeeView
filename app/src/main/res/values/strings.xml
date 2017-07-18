@@ -1,0 +1,78 @@
+<resources>
+    <string name="app_name">GeeBee View</string>
+    <string name="username">Username: </string>
+    <string name="password">Password: </string>
+
+    <string name="dataset_title">Dataset</string>
+    <string name="school">School</string>
+    <string name="date">Date</string>
+
+    <string name="data_visualization">Data Visualization</string>
+    <string name="dataset">Dataset/s:</string>
+    <string name="filter">Filter/s:</string>
+    <!-- BUTTONS -->
+    <string name="login">LOGIN</string>
+    <string name="signup">SIGN UP</string>
+
+    <string name="download">DOWNLOAD</string>
+    <string name="view">VIEW</string>
+
+    <string name="add_dataset">ADD DATASET</string>
+    <string name="add_filter">ADD FILTER</string>
+    <string name="view_patient_list">VIEW PATIENT LIST</string>
+
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="view_record">VIEW RECORD</string>
+
+    <string name="birthday">Birthday: </string>
+    <string name="gender_r">Gender: </string>
+    <string name="dominant_hand">Dominant Hand: </string>
+    <string name="last_record">Last Check Up: </string>
+    <string name="bmi">BMI: </string>
+    <string name="remarks">Remarks: </string>
+    
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="visual_acuity">Visual Acuity</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="color_vision">Color Vision</string>
+    <string name="hearing">Hearing</string>
+    <string name="gross_motor">Gross Motor</string>
+    <string name="fine_motor">Fine Motor</string>
+    <string name="dominant">Dominant</string>
+    <string name="non_dominant">Non-Dominant</string>
+
+    <string name="view_hpi">VIEW HPI</string>
+    <string name="view_prev_records">VIEW PREVIOUS RECORDS</string>
+
+    <string-array name="record_column_array">
+        <item>BMI</item>
+        <item>Visual Acuity Left</item>
+        <item>Visual Acuity Right</item>
+        <item>Color Vision</item>
+        <item>Hearing Left</item>
+        <item>Hearing Right</item>
+        <item>Gross Motor</item>
+        <item>Fine Motor (Dominant Hand)</item>
+        <item>Fine Motor (Non-Dominant Hand)</item>
+        <item>Fine Motor (Hold)</item>
+    </string-array>
+
+    <string-array name="record_column_array_num">
+        <item>Height (in cm)</item>
+        <item>Weight (in kg)</item>
+        <item>BMI</item>
+        <item>Visual Acuity Left</item>
+        <item>Visual Acuity Right</item>
+        <item>Color Vision</item>
+        <item>Hearing Left</item>
+        <item>Hearing Right</item>
+        <item>Gross Motor</item>
+        <item>Fine Motor (Dominant Hand)</item>
+        <item>Fine Motor (Non-Dominant Hand)</item>
+        <item>Fine Motor (Hold)</item>
+    </string-array>
+</resources>

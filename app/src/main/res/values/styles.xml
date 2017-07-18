@@ -1,0 +1,57 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    <!--
+    <style name="DefaultButton" parent="android:style/Widget.Button">
+        <item name="android:background">@drawable/button_selector</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColorPrimaryDisableOnly">#E0E0E0</item>
+
+    </style>
+    -->
+    <style name="DefaultBackground">
+        <item name="android:background">#1B5E20</item>
+    </style>
+
+    <style name="ECAPlaceholder" parent="android:Widget">
+        <item name="android:src">#00BCD4</item>
+    </style>
+    <!--
+    <style name="TestButton" parent="android:Widget.Button">
+        <item name="android:textSize">35sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:background">@drawable/button_selector</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
+    </style>
+    -->
+    <!-- SeeBee styles -->
+    <style name="DefaultText" parent="android:TextAppearance.Widget.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/context_text_size</item>
+        <item name="android:padding">@dimen/context_padding</item>
+        <!--<item name="android:fontFamily">@font/rudiment</item>-->
+    </style>
+
+    <style name="TitleText" parent="android:TextAppearance.Widget.TextView">
+        <item name="android:textColor">@color/yellow</item>
+        <item name="android:textSize">@dimen/title_text_size</item>
+        <item name="android:padding">@dimen/context_padding</item>
+        <!--
+        <item name="android:fontFamily">@font/chawp</item>-->
+    </style>
+
+    <style name="DefaultButton" parent="android:Widget.Button">
+        <item name="android:background">@color/green</item>
+        <item name="android:textColor">@color/yellow</item>
+        <item name="android:textSize">@dimen/context_text_size</item>
+        <item name="android:padding">@dimen/context_padding</item>
+        <item name="android:layout_margin">@dimen/context_margin</item>
+    </style>
+</resources>
