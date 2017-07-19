@@ -32,7 +32,7 @@
     <string name="last_record">Last Check Up: </string>
     <string name="bmi">BMI: </string>
     <string name="remarks">Remarks: </string>
-    
+
     <string name="height">Height</string>
     <string name="weight">Weight</string>
     <string name="visual_acuity">Visual Acuity</string>
@@ -47,6 +47,10 @@
 
     <string name="view_hpi">VIEW HPI</string>
     <string name="view_prev_records">VIEW PREVIOUS RECORDS</string>
+
+    <string name="view_HPI_list">View HPI List</string>
+    <string name="case_impression">Case Impression</string>
+    <string name="default_hpi">No HPI Text</string>
 
     <string-array name="record_column_array">
         <item>BMI</item>
@@ -75,4 +79,6 @@
         <item>Fine Motor (Non-Dominant Hand)</item>
         <item>Fine Motor (Hold)</item>
     </string-array>
+
+
 </resources>

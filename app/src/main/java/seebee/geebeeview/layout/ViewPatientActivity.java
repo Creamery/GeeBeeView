@@ -1,13 +1,15 @@
 package seebee.geebeeview.layout;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -20,14 +22,9 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.ViewPortHandler;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -46,6 +43,8 @@ public class ViewPatientActivity extends AppCompatActivity {
     private TextView tvName, tvBirthday, tvGender, tvDominantHand, tvRecordDate, tvBMI, tvRemarks;
     private TextView tvHeight, tvWeight, tvVisualLeft, tvVisualRight, tvColorVision, tvHearingLeft,
             tvHearingRight, tvGrossMotor, tvFineMotorD, tvFineMotorND;
+    private Button btnViewHPI;
+
     private int patientID;
     private Patient patient;
     private ArrayList<Record> patientRecords;
@@ -54,6 +53,7 @@ public class ViewPatientActivity extends AppCompatActivity {
     private LineChart lineChart;
     private Spinner spRecordColumn;
     private String recordColumn = "Height (in cm)";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +88,17 @@ public class ViewPatientActivity extends AppCompatActivity {
         graphLayout = (RelativeLayout) findViewById(R.id.patient_chart_container);
         /* connect spinner here */
         spRecordColumn = (Spinner) findViewById(R.id.sp_vp_record_column);
+        /* connect buttons */
+        btnViewHPI = (Button) findViewById(R.id.btn_view_hpi);
+        /* set button so that it will go to the ViewHPIListActivity */
+        btnViewHPI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ViewHPIListActivity.class);
+                intent.putExtra(Patient.C_PATIENT_ID, patient.getPatientID());
+                startActivity(intent);
+            }
+        });
 
         patient = null;
         getPatientData();

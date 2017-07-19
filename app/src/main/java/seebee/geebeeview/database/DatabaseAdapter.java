@@ -793,4 +793,28 @@ public class DatabaseAdapter {
 
         return patient;
     }
+
+    /**
+     * Get all HPI of the school which has an ID value of
+     * {@code schoolID}.
+     * @param schoolId ID of the patient to be queried.
+     * @return list of HPI of the patient.
+     */
+    public ArrayList<HPI> getHPIsFromSchool(int schoolId){
+        ArrayList<HPI> HPIs = new ArrayList<HPI>();
+        Cursor c = getBetterDb.rawQuery("SELECT * "
+                +" FROM "+HPI.TABLE_NAME+" AS h, "+Patient.TABLE_NAME+" AS p, "+School.TABLE_NAME+" AS s "
+                +" WHERE h."+HPI.C_PATIENT_ID+" = p."+Patient.C_PATIENT_ID
+                +" AND p."+Patient.C_SCHOOL_ID+" = s."+School.C_SCHOOL_ID
+                +" AND s."+School.C_SCHOOL_ID+" = "+schoolId, null);
+
+        if(c.moveToFirst()){
+            do{
+                HPIs.add(new HPI(c.getInt(c.getColumnIndex(HPI.C_HPI_ID)), c.getInt(c.getColumnIndex(HPI.C_PATIENT_ID)),
+                        c.getString(c.getColumnIndex(HPI.C_HPI_TEXT)), c.getString(c.getColumnIndex(HPI.C_DATE_CREATED))));
+            }while(c.moveToNext());
+        }
+        c.close();
+        return HPIs;
+    }
 }

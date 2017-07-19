@@ -19,7 +19,9 @@
         <activity android:name=".layout.ViewDatasetListActivity" />
         <activity android:name=".layout.DataVisualizationActivity" />
         <activity android:name=".layout.ViewPatientListActivity" />
-        <activity android:name=".layout.ViewPatientActivity"></activity>
+        <activity android:name=".layout.ViewPatientActivity" />
+        <activity android:name=".layout.ViewHPIListActivity" />
+        <activity android:name=".layout.ViewHPIActivity"></activity>
     </application>
 
 </manifest>
