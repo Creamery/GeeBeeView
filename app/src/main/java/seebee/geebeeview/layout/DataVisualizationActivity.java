@@ -17,12 +17,18 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.ScatterData;
+import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
@@ -30,14 +36,15 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
-import seebee.geebeeview.model.monitoring.ValueCounter;
 import seebee.geebeeview.model.adapter.TextHolderAdapter;
 import seebee.geebeeview.model.consultation.School;
 import seebee.geebeeview.model.monitoring.PatientRecord;
 import seebee.geebeeview.model.monitoring.Record;
+import seebee.geebeeview.model.monitoring.ValueCounter;
 
 
 public class DataVisualizationActivity extends AppCompatActivity {
@@ -54,13 +61,17 @@ public class DataVisualizationActivity extends AppCompatActivity {
     private ValueCounter valueCounter;
 
     PieChart pieChart;
+    BarChart barChart;
+    ScatterChart scatterChart;
+
     ArrayList<PatientRecord> records;
 
     String[] xData;
     int[] yData;
 
-    private Spinner spRecordColumn;
+    private Spinner spRecordColumn, spChartType;
     private String recordColumn = "BMI";
+    private String chartType = "Pie Chart";
 
 
     @Override
@@ -81,6 +92,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         rvFilter = (RecyclerView) findViewById(R.id.rv_dv_filter);
         graphLayout = (RelativeLayout) findViewById(R.id.graph_container);
         spRecordColumn = (Spinner) findViewById(R.id.sp_record_column);
+        spChartType = (Spinner) findViewById(R.id.sp_chart_type);
 
         /* set button for view patient list */
         btnViewPatientList.setOnClickListener(new View.OnClickListener() {
@@ -125,10 +137,18 @@ public class DataVisualizationActivity extends AppCompatActivity {
                         "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
                         Toast.LENGTH_SHORT).show();
                 /* change the contents of the chart */
-                if(pieChart != null) {
+                if(pieChart != null || barChart != null) {
                     prepareChartData();
-                    pieChart.clear();
-                    addData();
+                    if(chartType.contentEquals("Pie Chart")) {
+                        barChart.clear();
+                        addDataSet();
+                    } else if(chartType.contentEquals("Bar Chart")) {
+                        pieChart.clear();
+                        addDataSet();
+                    } else {
+                        scatterChart.clear();
+                        addDataSet();
+                    }
                 }
             }
 
@@ -143,7 +163,51 @@ public class DataVisualizationActivity extends AppCompatActivity {
         /* prepare record so that it can be plotted immediately */
         valueCounter = new ValueCounter(records);
         prepareChartData();
-        preparePieChart();
+        createCharts();
+
+        spChartType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                chartType = parent.getItemAtPosition(position).toString();
+                ViewGroup.LayoutParams params;
+                if(position == 0){
+                    graphLayout.removeAllViews();
+                    graphLayout.addView(pieChart);
+                    // adjust size of layout
+                    params = pieChart.getLayoutParams();
+                } else if(position == 1) {
+                    graphLayout.removeAllViews();
+                    /* add bar chart to layout */
+                    graphLayout.addView(barChart);
+                    /* adjust the size of the bar chart */
+                    params = barChart.getLayoutParams();
+                } else {
+                    graphLayout.removeAllViews();
+                    graphLayout.addView(scatterChart);
+                    /* adjust the size of the bar chart */
+                    params = scatterChart.getLayoutParams();
+                }
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                addDataSet();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                chartType = "Pie Chart";
+                graphLayout.addView(pieChart);
+                // adjust size of layout
+                ViewGroup.LayoutParams params = pieChart.getLayoutParams();
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            }
+        });
+    }
+
+    private void createCharts() {
+        createPieChart();
+        createBarChart();
+        createScatterChart();
     }
 
     /* change the contents of xData and yData */
@@ -193,16 +257,42 @@ public class DataVisualizationActivity extends AppCompatActivity {
         }
     }
 
-    private void prepareScatterChart() {
-        ScatterChart scatterChart = new ScatterChart(this);
+    private OnChartValueSelectedListener getOnChartValueSelectedListener() {
+        return new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry entry, int i, Highlight highlight) {
+                // display msg when value selected
+                if(entry == null)
+                    return;
+                Toast.makeText(DataVisualizationActivity.this,
+                        xData[entry.getXIndex()] + " = " + entry.getVal() + "%",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected() {
+
+            }
+        };
+    }
+
+    private void createScatterChart() {
+        scatterChart = new ScatterChart(this);
+    }
+
+    private void createBarChart() {
+        /* create bar chart */
+        barChart = new BarChart(this);
+
+        // set a chart value selected listener
+        barChart.setOnChartValueSelectedListener(getOnChartValueSelectedListener());
     }
 
     /* prepare values specifically for piechart only */
-    private void preparePieChart() {
+    private void createPieChart() {
         /* add pie chart */
         pieChart = new PieChart(this);
-        // add pie chart to main layout
-        graphLayout.addView(pieChart);
+
         graphLayout.setBackgroundColor(Color.LTGRAY);
 
         // configure pie chart
@@ -220,25 +310,10 @@ public class DataVisualizationActivity extends AppCompatActivity {
         pieChart.setRotationEnabled(true);
 
         // set a chart value selected listener
-        pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry entry, int i, Highlight highlight) {
-                // display msg when value selected
-                if(entry == null)
-                    return;
-                Toast.makeText(DataVisualizationActivity.this,
-                        xData[entry.getXIndex()] + " = " + entry.getVal() + "%",
-                        Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected() {
-
-            }
-        });
+        pieChart.setOnChartValueSelectedListener(getOnChartValueSelectedListener());
 
         // add data
-        addData();
+        addDataSet();
 
         // customize legends
         Legend l = pieChart.getLegend();
@@ -246,11 +321,6 @@ public class DataVisualizationActivity extends AppCompatActivity {
         l.setTextSize(R.dimen.context_text_size);
         l.setXEntrySpace(7);
         l.setYEntrySpace(5);
-
-        // adjust size of layout
-        ViewGroup.LayoutParams params = pieChart.getLayoutParams();
-        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
 
     }
 
@@ -282,26 +352,8 @@ public class DataVisualizationActivity extends AppCompatActivity {
         Log.v(TAG, "number of records = " + records.size());
     }
 
-    private void addData() {
-        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-
-        for(int i = 0; i < yData.length; i++) {
-            yVals1.add(new Entry(yData[i], i));
-        }
-
-        ArrayList<String> xVals = new ArrayList<String>();
-
-        for(int i = 0; i < xData.length; i++) {
-            xVals.add(xData[i]);
-        }
-
-        // create pie data set
-        PieDataSet dataSet = new PieDataSet(yVals1, "");
-        dataSet.setSliceSpace(3);
-        dataSet.setSelectionShift(5);
-
-        // add many colors
-        ArrayList<Integer> colors = new ArrayList<Integer>();
+    private ArrayList<Integer> getColorPalette() {
+        ArrayList<Integer> colors = new ArrayList<>();
 
         for(int c : ColorTemplate.VORDIPLOM_COLORS)
             colors.add(c);
@@ -319,6 +371,75 @@ public class DataVisualizationActivity extends AppCompatActivity {
             colors.add(c);
 
         colors.add(ColorTemplate.getHoloBlue());
+
+        return colors;
+    }
+
+    private void addDataSet() {
+        if(chartType.contentEquals("Pie Chart")) {
+            preparePieChartData(getColorPalette());
+        } else if(chartType.contentEquals("Bar Chart")){
+            prepareBarChartData(getColorPalette());
+        } else {
+            prepareScatterChartData(getColorPalette());
+        }
+    }
+
+    private ArrayList<Entry> createEntries() {
+        ArrayList<Entry> yVals1 = new ArrayList<>();
+
+        for(int i = 0; i < yData.length; i++) {
+            yVals1.add(new Entry(yData[i], i));
+        }
+        return yVals1;
+    }
+
+    private ArrayList<String> createLabels() {
+        ArrayList<String> xVals = new ArrayList<>();
+
+        Collections.addAll(xVals, xData);
+
+        return xVals;
+    }
+
+    private void prepareScatterChartData(ArrayList<Integer> colors) {
+        ArrayList<Entry> yVals1 = createEntries();
+        ArrayList<String> labels = createLabels();
+
+        ScatterDataSet scatterDataSet = new ScatterDataSet(yVals1, "");
+        scatterDataSet.addColor(colors.get(0));
+        ScatterData scatterData = new ScatterData(labels, scatterDataSet);
+        scatterChart.setData(scatterData);
+        scatterChart.setDescription(recordColumn);
+    }
+
+    private void prepareBarChartData(ArrayList<Integer> colors) {
+        ArrayList<BarEntry> yVals1 = new ArrayList<>();
+
+        for(int i = 0; i < yData.length; i++) {
+            yVals1.add(new BarEntry(yData[i], i));
+        }
+
+        ArrayList<String> xVals = createLabels();
+
+        /* create bar chart dataset */
+        BarDataSet barDataSet = new BarDataSet(yVals1, "");
+        barDataSet.addColor(colors.get(0));
+        BarData barData = new BarData(xVals, barDataSet);
+        barChart.setData(barData);
+        barChart.setDescription(recordColumn);
+    }
+
+    private void preparePieChartData(ArrayList<Integer> colors) {
+        ArrayList<Entry> yVals1 = createEntries();
+
+        ArrayList<String> xVals = createLabels();
+
+        // create pie data set
+        PieDataSet dataSet = new PieDataSet(yVals1, "");
+        dataSet.setSliceSpace(3);
+        dataSet.setSelectionShift(5);
+        /* add colors to chart */
         dataSet.setColors(colors);
 
         // instantiate pie data object now

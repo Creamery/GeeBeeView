@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="seebee.geebeeview.layout.DataVisualizationActivity"
     android:layout_width="match_parent"
@@ -67,6 +66,20 @@
                 android:id="@+id/btn_add_filter"
                 style="@style/DefaultButton"
                 android:text="@string/add_filter"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/chart"/>
+            <Spinner
+                android:id="@+id/sp_chart_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/chart_type_array">
+            </Spinner>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/displayed_data"/>
             <Spinner
                 android:id="@+id/sp_record_column"
                 android:layout_width="match_parent"

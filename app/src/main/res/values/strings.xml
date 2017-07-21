@@ -10,6 +10,9 @@
     <string name="data_visualization">Data Visualization</string>
     <string name="dataset">Dataset/s:</string>
     <string name="filter">Filter/s:</string>
+    <string name="chart">Chart: </string>
+    <string name="displayed_data">Displayed Data: </string>
+
     <!-- BUTTONS -->
     <string name="login">LOGIN</string>
     <string name="signup">SIGN UP</string>
@@ -78,6 +81,12 @@
         <item>Fine Motor (Dominant Hand)</item>
         <item>Fine Motor (Non-Dominant Hand)</item>
         <item>Fine Motor (Hold)</item>
+    </string-array>
+
+    <string-array name="chart_type_array">
+        <item>Pie Chart</item>
+        <item>Bar Chart</item>
+        <item>Scatter Chart</item>
     </string-array>
 
 
