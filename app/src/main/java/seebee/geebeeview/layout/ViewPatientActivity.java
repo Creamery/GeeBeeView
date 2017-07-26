@@ -94,7 +94,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         btnViewHPI.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), ViewHPIListActivity.class);
+                Intent intent = new Intent(v.getContext(), ViewHPIActivity.class);
                 intent.putExtra(Patient.C_PATIENT_ID, patient.getPatientID());
                 startActivity(intent);
             }
@@ -123,11 +123,11 @@ public class ViewPatientActivity extends AppCompatActivity {
             }
             String bmi = BMICalculator.getBMIResultString(isGirl,
                     AgeCalculator.calculateAge(patient.getBirthday(), recordDate),
-                    BMICalculator.computeBMIMetric(new Double(lastRecord.getHeight()).intValue(),
-                            new Double(lastRecord.getWeight()).intValue()));
+                    BMICalculator.computeBMIMetric(Double.valueOf(lastRecord.getHeight()).intValue(),
+                            Double.valueOf(lastRecord.getWeight()).intValue()));
             tvBMI.setText(bmi);
-            tvHeight.setText(Double.toString(lastRecord.getHeight())+" cm");
-            tvWeight.setText(Double.toString(lastRecord.getWeight())+" kg");
+            tvHeight.setText(lastRecord.getHeight()+" cm");
+            tvWeight.setText(lastRecord.getWeight()+" kg");
             tvVisualLeft.setText(lastRecord.getVisualAcuityLeft());
             tvVisualRight.setText(lastRecord.getVisualAcuityRight());
             tvColorVision.setText(lastRecord.getColorVision());
@@ -170,7 +170,6 @@ public class ViewPatientActivity extends AppCompatActivity {
 
         // add data to line chart
         lineChart.setData(lineData);
-        if(lineData != null) {
             LineDataSet dataset = (LineDataSet) lineData.getDataSetByIndex(0);
             if(dataset == null) {
                 dataset = createLineDataSet();
@@ -223,7 +222,7 @@ public class ViewPatientActivity extends AppCompatActivity {
 
             // notify chart data has changed
             lineChart.notifyDataSetChanged();
-        }
+
     }
 
     private void setLineChartValueFormatter(LineData lineData) {
@@ -252,7 +251,6 @@ public class ViewPatientActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 
     private LineDataSet createLineDataSet() {
@@ -263,7 +261,6 @@ public class ViewPatientActivity extends AppCompatActivity {
         lineDataset.setColor(ColorTemplate.getHoloBlue());
         lineDataset.setCircleColor(ColorTemplate.getHoloBlue());
         lineDataset.setLineWidth(2f);
-        lineDataset.setCircleSize(4f);
         lineDataset.setFillAlpha(4);
         lineDataset.setFillColor(ColorTemplate.getHoloBlue());
         lineDataset.setHighLightColor(Color.rgb(244, 11, 11));

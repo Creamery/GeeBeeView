@@ -48,10 +48,10 @@
     <string name="dominant">Dominant</string>
     <string name="non_dominant">Non-Dominant</string>
 
-    <string name="view_hpi">VIEW HPI</string>
-    <string name="view_prev_records">VIEW PREVIOUS RECORDS</string>
+    <string name="view_hpi">VIEW PREVIOUS CONSULATION RECORD</string>
+    <string name="view_prev_records">VIEW PREVIOUS MONITORING RECORDS</string>
 
-    <string name="view_HPI_list">View HPI List</string>
+    <string name="view_HPI_list">View Consultation List</string>
     <string name="case_impression">Case Impression</string>
     <string name="default_hpi">No HPI Text</string>
 
@@ -87,6 +87,7 @@
         <item>Pie Chart</item>
         <item>Bar Chart</item>
         <item>Scatter Chart</item>
+        <item>Bubble Chart</item>
     </string-array>
 
 

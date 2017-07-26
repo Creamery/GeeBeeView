@@ -28,7 +28,7 @@ public class ViewHPIActivity extends AppCompatActivity {
 
     int patientId, hpiId;
     
-    ArrayList<HPI> HPIs = new ArrayList<HPI>();
+    ArrayList<HPI> HPIs = new ArrayList<>();
     Patient patient;
 
     @Override
@@ -46,8 +46,20 @@ public class ViewHPIActivity extends AppCompatActivity {
         prepareData();
 
         tvPatientName.setText(patient.getLastName()+", "+patient.getFirstName());
-        tvHPIText.setText(findHPI(hpiId).getHpiText());
-        
+        if(hpiId == 0) {
+            hpiId = HPIs.get(HPIs.size()-1).getHpi_id();
+        }
+        HPI hpi = findHPI(hpiId);
+        if(hpi != null) {
+            tvHPIText.setText(findHPI(hpiId).getHpiText());
+        } else {
+            /* close activity if consultation record does not exist */
+            Toast.makeText(getBaseContext(),
+                    "No consultation records found!",
+                    Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         prepareSpinner();
     }
 
@@ -65,11 +77,11 @@ public class ViewHPIActivity extends AppCompatActivity {
     }
 
     private void prepareSpinner() {
-        List<String> hpiDateList = new ArrayList<String>();
+        List<String> hpiDateList = new ArrayList<>();
         for(int i = 0; i < HPIs.size(); i++) {
             hpiDateList.add(HPIs.get(i).getDateCreated());
         }
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
                 R.layout.support_simple_spinner_dropdown_item, hpiDateList);
         spinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         spHPIDate.setAdapter(spinnerAdapter);

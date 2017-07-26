@@ -89,6 +89,12 @@
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/DefaultButton"
+                android:id="@+id/btn_view_hpi_list"
+                android:text="@string/view_HPI_list"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/btn_view_patient_list"
                 style="@style/DefaultButton"
                 android:text="@string/view_patient_list"/>

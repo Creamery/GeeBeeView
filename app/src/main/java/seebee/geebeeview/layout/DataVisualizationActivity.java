@@ -18,12 +18,16 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.BubbleChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.charts.ScatterChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.BubbleData;
+import com.github.mikephil.charting.data.BubbleDataSet;
+import com.github.mikephil.charting.data.BubbleEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -53,7 +57,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
     ArrayList<String> datasetList, filterList;
     TextHolderAdapter datasetAdapter, filterAdapter;
     RecyclerView rvDataset, rvFilter;
-    Button btnAddDataset, btnAddFilter, btnViewPatientList;
+    Button btnAddDataset, btnAddFilter, btnViewPatientList, btnViewHPIList;
     RelativeLayout graphLayout; /* space where graph will be set on */
 
     int schoolID;
@@ -63,6 +67,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
     PieChart pieChart;
     BarChart barChart;
     ScatterChart scatterChart;
+    BubbleChart bubbleChart;
 
     ArrayList<PatientRecord> records;
 
@@ -88,11 +93,23 @@ public class DataVisualizationActivity extends AppCompatActivity {
         btnAddDataset = (Button) findViewById(R.id.btn_add_dataset);
         btnAddFilter = (Button) findViewById(R.id.btn_add_filter);
         btnViewPatientList = (Button) findViewById(R.id.btn_view_patient_list);
+        btnViewHPIList = (Button) findViewById(R.id.btn_view_hpi_list);
         rvDataset = (RecyclerView) findViewById(R.id.rv_dv_dataset);
         rvFilter = (RecyclerView) findViewById(R.id.rv_dv_filter);
         graphLayout = (RelativeLayout) findViewById(R.id.graph_container);
         spRecordColumn = (Spinner) findViewById(R.id.sp_record_column);
         spChartType = (Spinner) findViewById(R.id.sp_chart_type);
+
+        /* set listener for button view hpi list */
+        btnViewHPIList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), ViewHPIListActivity.class);
+                intent.putExtra(School.C_SCHOOL_ID, schoolID);
+                intent.putExtra(School.C_SCHOOLNAME, schoolName);
+                startActivity(intent);
+            }
+        });
 
         /* set button for view patient list */
         btnViewPatientList.setOnClickListener(new View.OnClickListener() {
@@ -140,15 +157,15 @@ public class DataVisualizationActivity extends AppCompatActivity {
                 if(pieChart != null || barChart != null) {
                     prepareChartData();
                     if(chartType.contentEquals("Pie Chart")) {
-                        barChart.clear();
-                        addDataSet();
-                    } else if(chartType.contentEquals("Bar Chart")) {
                         pieChart.clear();
-                        addDataSet();
-                    } else {
+                    } else if(chartType.contentEquals("Bar Chart")) {
+                        barChart.clear();
+                    } else if (chartType.contentEquals("Scatter Chart")) {
                         scatterChart.clear();
-                        addDataSet();
+                    } else {
+                        bubbleChart.clear();
                     }
+                    addDataSet();
                 }
             }
 
@@ -161,7 +178,6 @@ public class DataVisualizationActivity extends AppCompatActivity {
         /* get records of patients taken in specified school and date from database */
         prepareRecord(schoolName, date);
         /* prepare record so that it can be plotted immediately */
-        valueCounter = new ValueCounter(records);
         prepareChartData();
         createCharts();
 
@@ -170,22 +186,24 @@ public class DataVisualizationActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 chartType = parent.getItemAtPosition(position).toString();
                 ViewGroup.LayoutParams params;
+                graphLayout.removeAllViews();
                 if(position == 0){
-                    graphLayout.removeAllViews();
                     graphLayout.addView(pieChart);
                     // adjust size of layout
                     params = pieChart.getLayoutParams();
                 } else if(position == 1) {
-                    graphLayout.removeAllViews();
                     /* add bar chart to layout */
                     graphLayout.addView(barChart);
                     /* adjust the size of the bar chart */
                     params = barChart.getLayoutParams();
-                } else {
-                    graphLayout.removeAllViews();
+                } else if (position == 2) {
                     graphLayout.addView(scatterChart);
                     /* adjust the size of the bar chart */
                     params = scatterChart.getLayoutParams();
+                } else {
+                    graphLayout.addView(bubbleChart);
+                    /* adjust the size of the bar chart */
+                    params = bubbleChart.getLayoutParams();
                 }
                 params.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -194,6 +212,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                /* Default chart is pie chart */
                 chartType = "Pie Chart";
                 graphLayout.addView(pieChart);
                 // adjust size of layout
@@ -208,10 +227,12 @@ public class DataVisualizationActivity extends AppCompatActivity {
         createPieChart();
         createBarChart();
         createScatterChart();
+        createBubbleChart();
     }
 
     /* change the contents of xData and yData */
     private void prepareChartData() {
+        valueCounter = new ValueCounter(records);
         switch (recordColumn) {
             default:
             case "BMI":
@@ -276,8 +297,16 @@ public class DataVisualizationActivity extends AppCompatActivity {
         };
     }
 
+    private void createBubbleChart() {
+        bubbleChart = new BubbleChart(this);
+
+        bubbleChart.setOnChartValueSelectedListener(getOnChartValueSelectedListener());
+    }
+
     private void createScatterChart() {
         scatterChart = new ScatterChart(this);
+
+        scatterChart.setOnChartValueSelectedListener(getOnChartValueSelectedListener());
     }
 
     private void createBarChart() {
@@ -380,8 +409,10 @@ public class DataVisualizationActivity extends AppCompatActivity {
             preparePieChartData(getColorPalette());
         } else if(chartType.contentEquals("Bar Chart")){
             prepareBarChartData(getColorPalette());
-        } else {
+        } else if(chartType.contentEquals("Scatter Chart")) {
             prepareScatterChartData(getColorPalette());
+        } else {
+            prepareBubbleChartData(getColorPalette());
         }
     }
 
@@ -391,6 +422,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         for(int i = 0; i < yData.length; i++) {
             yVals1.add(new Entry(yData[i], i));
         }
+
         return yVals1;
     }
 
@@ -402,11 +434,30 @@ public class DataVisualizationActivity extends AppCompatActivity {
         return xVals;
     }
 
+    private void prepareBubbleChartData(ArrayList<Integer> colors) {
+        ArrayList<BubbleEntry> yVals1 = new ArrayList<>();
+        String year = date.substring(date.length() - 4);
+        for(int i = 0; i < yData.length; i++) {
+            /* BubbleEntry(xpos, ypos, size)  */
+            yVals1.add(new BubbleEntry(i, Integer.valueOf(year), yData[i]));
+        }
+
+        ArrayList<String> labels = createLabels();
+
+        BubbleDataSet bubbleDataSet = new BubbleDataSet(yVals1, "");
+        bubbleDataSet.addColor(colors.get(0));
+        BubbleData bubbleData = new BubbleData(labels, bubbleDataSet);
+        bubbleChart.setData(bubbleData);
+        bubbleChart.setDescription(recordColumn);
+    }
+
     private void prepareScatterChartData(ArrayList<Integer> colors) {
         ArrayList<Entry> yVals1 = createEntries();
         ArrayList<String> labels = createLabels();
 
         ScatterDataSet scatterDataSet = new ScatterDataSet(yVals1, "");
+        /* set the shape of drawn scatter point. */
+        scatterDataSet.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
         scatterDataSet.addColor(colors.get(0));
         ScatterData scatterData = new ScatterData(labels, scatterDataSet);
         scatterChart.setData(scatterData);
