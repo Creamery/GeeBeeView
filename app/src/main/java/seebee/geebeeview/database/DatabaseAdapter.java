@@ -3,7 +3,6 @@ package seebee.geebeeview.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -712,9 +711,29 @@ public class DatabaseAdapter {
          * WHERE s.schoolID = p.schoolID AND r.patientID = p.patientID */
 
         /*Cursor c = getBetterDb.rawQuery("SELECT DISTINCT s."+School.C_SCHOOL_ID+", s."+School.C_SCHOOLNAME+" , r."+Record.C_DATE_CREATED
+                +" FROM "+School.TABLE_NAME+" AS s, "+Record.TABLE_NAME+" AS r, "+Patient.TABLE_NAME+" AS p "
+                +" WHERE s."+School.C_SCHOOL_ID+" = p."+Patient.C_SCHOOL_ID
                 +" AND r."+Record.C_PATIENT_ID+" = p."+Patient.C_PATIENT_ID, null);*/
-        Cursor c = getBetterDb.rawQuery("SELECT * FROM datasets;", null);
-                        c.getInt(c.getColumnIndex("status"))));
+        Cursor c = getBetterDb.rawQuery("SELECT * "
+                +" FROM "+Dataset.TABLE_NAME+" AS d , "+School.TABLE_NAME+" AS s "
+                +" WHERE s."+School.C_SCHOOL_ID+" = d."+Dataset.C_SCHOOL_ID, null);
+
+        if(c.moveToFirst()) {
+            Log.d(TAG, "tbl_dataset is not empty");
+            do {
+                Dataset dataset = new Dataset(c.getInt(c.getColumnIndex(Dataset.C_SCHOOL_ID)),
+                        c.getString(c.getColumnIndex(School.C_SCHOOLNAME)),
+                        c.getString(c.getColumnIndex(Dataset.C_DATE_CREATED)),
+                        c.getInt(c.getColumnIndex(Dataset.C_STATUS)));
+
+                dataset.printDataset();
+                datasetList.add(dataset);
+            } while (c.moveToNext());
+        } else {
+            Log.d(TAG, "tbl_dataset is empty!");
+        }
+        c.close();
+        return datasetList;
     }
 
     /**

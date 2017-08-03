@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Name of the database
      */                             // gee_bee_db or get_better_db
-    private static String DB_NAME = "get_better_db";
+    private static String DB_NAME = "get_better_db_copy";
 
     /**
      * Version number of the database

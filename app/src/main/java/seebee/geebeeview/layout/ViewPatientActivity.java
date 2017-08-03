@@ -120,6 +120,8 @@ public class ViewPatientActivity extends AppCompatActivity {
             tvRemarks.setText(patient.getRemarksString());
         }
 
+        getPatientRecords();
+
         /* set up spinner selector */
         spRecordColumn.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -145,11 +147,11 @@ public class ViewPatientActivity extends AppCompatActivity {
         });
         prepareRecordDateSpinner();
 
-        getPatientRecords();
         /* show details in relation to latest check up record*/
         if(patientRecords.size() > 0) {
+            spRecordDate.setSelection(patientRecords.size()-1);
             Record lastRecord = patientRecords.get(patientRecords.size()-1);
-            displayRecord(lastRecord);
+            tvRecordDate.setText(lastRecord.getDateCreated());
         }
 
         createCharts();
@@ -162,7 +164,7 @@ public class ViewPatientActivity extends AppCompatActivity {
 
     private void displayRecord(Record record) {
         String recordDate = record.getDateCreated();
-        tvRecordDate.setText(recordDate);
+
         boolean isGirl = true;
         if(patient.getGender() != 1) {
             isGirl = false;

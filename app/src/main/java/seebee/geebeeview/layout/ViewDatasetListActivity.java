@@ -52,18 +52,20 @@ public class ViewDatasetListActivity extends BaseActivity {
         rvDataset.setLayoutManager(mLayoutManager);
         rvDataset.setItemAnimator(new DefaultItemAnimator());
         rvDataset.setAdapter(datasetAdapter);
+        prepareDatasetList();
+
         btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateDatasets();
             }
         });
-        prepareDatasetList();
+
 
     }
 
     private void prepareDatasetList() {
-
+        DatabaseAdapter getBetterDb = new DatabaseAdapter(this);
         /* ready database for reading */
         //updateDatasets();
         try {

@@ -1,5 +1,7 @@
 package seebee.geebeeview.model.account;
 
+import android.util.Log;
+
 /**
  * The Dataset class represents a dataset
  * containing information about the health records
@@ -10,6 +12,16 @@ package seebee.geebeeview.model.account;
  */
 
 public class Dataset {
+    public final static String TAG = "Dataset";
+
+    public final static String TABLE_NAME = "tbl_dataset";
+
+    public final static String C_SCHOOL_ID = "school_id";
+
+    public final static String C_DATE_CREATED = "date_created";
+
+    public final static String C_STATUS = "status";
+
     private int schoolID;
     /* School name from where dataset was recorded */
     private String schoolName;
@@ -55,5 +67,9 @@ public class Dataset {
 
     public int getSchoolID() {
         return schoolID;
+    }
+
+    public void printDataset() {
+        Log.d(TAG, "schoolID: "+schoolID+" schoolName: "+schoolName+" dateCreated: "+date+" status: "+status);
     }
 }
