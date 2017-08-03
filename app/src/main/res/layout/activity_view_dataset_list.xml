@@ -16,29 +16,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
+        style="@style/DefaultButton"
         android:allowUndo="true"
         android:contentDescription="Refreshes list from database"
-        android:text="Refresh Datasets" />
+        android:text="@string/refresh_dataset_list" />
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:weightSum="3">
 
         <TextView
-            style="@style/DefaultText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_weight="1"
             android:text="@string/school" />
 
         <TextView
-            style="@style/DefaultText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:textAlignment="center"
             android:text="@string/date" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

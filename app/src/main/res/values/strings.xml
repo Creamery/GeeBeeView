@@ -48,8 +48,8 @@
     <string name="dominant">Dominant</string>
     <string name="non_dominant">Non-Dominant</string>
 
-    <string name="view_hpi">VIEW PREVIOUS CONSULATION RECORD</string>
-    <string name="view_prev_records">VIEW PREVIOUS MONITORING RECORDS</string>
+    <string name="view_hpi">VIEW  CONSULTATION RECORDS</string>
+    <string name="refresh_dataset_list">REFRESH DATASET LIST</string>
 
     <string name="view_HPI_list">VIEW CONSULTATION LIST</string>
     <string name="case_impression">Case Impression</string>
