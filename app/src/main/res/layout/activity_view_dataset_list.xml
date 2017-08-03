@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context="seebee.geebeeview.layout.ViewDatasetListActivity"
     style="@style/DefaultBackground"
     android:orientation="vertical">
@@ -13,7 +15,16 @@
         style="@style/TitleText"
         android:text="@string/dataset_title"/>
 
-    <RelativeLayout
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:allowUndo="true"
+        android:contentDescription="Refreshes list from database"
+        android:text="Refresh Datasets" />
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:weightSum="6"
@@ -23,22 +34,23 @@
             style="@style/DefaultText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_weight="3"
             android:text="@string/school" />
 
         <TextView
             style="@style/DefaultText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_weight="2"
             android:text="@string/date" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/rv_dataset">
+        android:id="@+id/rv_dataset"
+        android:padding="@dimen/activity_horizontal_margin">
 
     </android.support.v7.widget.RecyclerView>
 </LinearLayout>
