@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/DefaultBackground"
+    tools:context="seebee.geebeeview.layout.BaseActivity">
+    <!--
+    <TextView
+        style="@style/TitleText"
+        android:id="@+id/tv_base_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Default Title" />
+     -->
+</RelativeLayout>

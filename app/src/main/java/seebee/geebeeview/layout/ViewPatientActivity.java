@@ -9,24 +9,29 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.RadarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.RadarData;
 import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
@@ -44,6 +49,7 @@ public class ViewPatientActivity extends AppCompatActivity {
     private TextView tvHeight, tvWeight, tvVisualLeft, tvVisualRight, tvColorVision, tvHearingLeft,
             tvHearingRight, tvGrossMotor, tvFineMotorD, tvFineMotorND;
     private Button btnViewHPI;
+    private Spinner spRecordDate;
 
     private int patientID;
     private Patient patient;
@@ -51,8 +57,10 @@ public class ViewPatientActivity extends AppCompatActivity {
 
     private RelativeLayout graphLayout;
     private LineChart lineChart;
+    private RadarChart radarChart;
     private Spinner spRecordColumn;
     private String recordColumn = "Height (in cm)";
+    private String chartType = "Line Chart";
 
 
     @Override
@@ -88,6 +96,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         graphLayout = (RelativeLayout) findViewById(R.id.patient_chart_container);
         /* connect spinner here */
         spRecordColumn = (Spinner) findViewById(R.id.sp_vp_record_column);
+        spRecordDate = (Spinner) findViewById(R.id.sp_record_date);
         /* connect buttons */
         btnViewHPI = (Button) findViewById(R.id.btn_view_hpi);
         /* set button so that it will go to the ViewHPIListActivity */
@@ -111,37 +120,6 @@ public class ViewPatientActivity extends AppCompatActivity {
             tvRemarks.setText(patient.getRemarksString());
         }
 
-        getPatientRecords();
-        /* show details in relation to latest check up record*/
-        if(patientRecords.size() > 0) {
-            Record lastRecord = patientRecords.get(patientRecords.size()-1);
-            String recordDate = lastRecord.getDateCreated();
-            tvRecordDate.setText(recordDate);
-            boolean isGirl = true;
-            if(patient.getGender() != 1) {
-                isGirl = false;
-            }
-            String bmi = BMICalculator.getBMIResultString(isGirl,
-                    AgeCalculator.calculateAge(patient.getBirthday(), recordDate),
-                    BMICalculator.computeBMIMetric(Double.valueOf(lastRecord.getHeight()).intValue(),
-                            Double.valueOf(lastRecord.getWeight()).intValue()));
-            tvBMI.setText(bmi);
-            tvHeight.setText(lastRecord.getHeight()+" cm");
-            tvWeight.setText(lastRecord.getWeight()+" kg");
-            tvVisualLeft.setText(lastRecord.getVisualAcuityLeft());
-            tvVisualRight.setText(lastRecord.getVisualAcuityRight());
-            tvColorVision.setText(lastRecord.getColorVision());
-            tvHearingLeft.setText(lastRecord.getHearingLeft());
-            tvHearingRight.setText(lastRecord.getHearingRight());
-            tvGrossMotor.setText(lastRecord.getGrossMotorString());
-            tvFineMotorD.setText(lastRecord.getFineMotorString(lastRecord.getFineMotorDominant()));
-            tvFineMotorND.setText(lastRecord.getFineMotorString(lastRecord.getFineMotorNDominant()));
-        }
-
-        addChartToView();
-        prepareLineChart();
-        prepareLineChartData();
-
         /* set up spinner selector */
         spRecordColumn.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -154,6 +132,9 @@ public class ViewPatientActivity extends AppCompatActivity {
                 if(lineChart != null) {
                     lineChart.clear();
                     prepareLineChartData();
+                } else {
+                    radarChart.clear();
+                    prepareRadarChartData();
                 }
             }
 
@@ -162,6 +143,54 @@ public class ViewPatientActivity extends AppCompatActivity {
 
             }
         });
+        prepareRecordDateSpinner();
+
+        getPatientRecords();
+        /* show details in relation to latest check up record*/
+        if(patientRecords.size() > 0) {
+            Record lastRecord = patientRecords.get(patientRecords.size()-1);
+            displayRecord(lastRecord);
+        }
+
+        createCharts();
+        addChartToView();
+        prepareLineChart();
+        prepareLineChartData();
+
+
+    }
+
+    private void displayRecord(Record record) {
+        String recordDate = record.getDateCreated();
+        tvRecordDate.setText(recordDate);
+        boolean isGirl = true;
+        if(patient.getGender() != 1) {
+            isGirl = false;
+        }
+        String bmi = BMICalculator.getBMIResultString(isGirl,
+                AgeCalculator.calculateAge(patient.getBirthday(), recordDate),
+                BMICalculator.computeBMIMetric(Double.valueOf(record.getHeight()).intValue(),
+                        Double.valueOf(record.getWeight()).intValue()));
+        tvBMI.setText(bmi);
+        tvHeight.setText(record.getHeight()+" cm");
+        tvWeight.setText(record.getWeight()+" kg");
+        tvVisualLeft.setText(record.getVisualAcuityLeft());
+        tvVisualRight.setText(record.getVisualAcuityRight());
+        tvColorVision.setText(record.getColorVision());
+        tvHearingLeft.setText(record.getHearingLeft());
+        tvHearingRight.setText(record.getHearingRight());
+        tvGrossMotor.setText(record.getGrossMotorString());
+        tvFineMotorD.setText(record.getFineMotorString(record.getFineMotorDominant()));
+        tvFineMotorND.setText(record.getFineMotorString(record.getFineMotorNDominant()));
+    }
+
+    private void prepareRadarChartData() {
+        RadarData radarData = new RadarData();
+        ArrayList<Entry> entries;
+        Record record = patientRecords.get(0);
+        for(int i = 0; i < 5; i++) {
+            //entries.add(new Entry());
+        }
     }
 
     private void prepareLineChartData() {
@@ -170,59 +199,65 @@ public class ViewPatientActivity extends AppCompatActivity {
 
         // add data to line chart
         lineChart.setData(lineData);
-            LineDataSet dataset = (LineDataSet) lineData.getDataSetByIndex(0);
-            if(dataset == null) {
-                dataset = createLineDataSet();
-                lineData.addDataSet(dataset);
-            }
+        LineDataSet dataset = (LineDataSet) lineData.getDataSetByIndex(0);
+        if(dataset == null) {
+            dataset = createLineDataSet();
+            lineData.addDataSet(dataset);
+        }
 
-            Record record;
-            float x; int age;
-            for(int i = 0; i < patientRecords.size(); i++) {
-                record = patientRecords.get(i);
-                lineData.addXValue(record.getDateCreated());
-                switch (recordColumn) {
-                    default:
-                    case "Height (in cm)": x = Double.valueOf(record.getHeight()).floatValue();
-                        break;
-                    case "Weight (in kg)": x = Double.valueOf(record.getWeight()).floatValue();
-                        break;
-                    case "BMI": x = BMICalculator.computeBMIMetric(
-                            Double.valueOf(record.getHeight()).intValue(),
-                            Double.valueOf(record.getWeight()).intValue());
-                        break;
-                    case "Visual Acuity Left":
-                        x = LineChartValueFormatter.ConvertVisualAcuity(record.getVisualAcuityLeft());
-                        break;
-                    case "Visual Acuity Right":
-                        x = LineChartValueFormatter.ConvertVisualAcuity(record.getVisualAcuityRight());
-                        break;
-                    case "Color Vision":
-                        x = LineChartValueFormatter.ConvertColorVision(record.getColorVision());
-                        break;
-                    case "Hearing Left":
-                        x = LineChartValueFormatter.ConvertHearing(record.getHearingLeft());
-                        break;
-                    case "Hearing Right":
-                        x = LineChartValueFormatter.ConvertHearing(record.getHearingRight());
-                        break;
-                    case "Gross Motor": x = record.getGrossMotor();
-                        break;
-                    case "Fine Motor (Dominant Hand)": x = record.getFineMotorDominant();
-                        break;
-                    case "Fine Motor (Non-Dominant Hand)": x = record.getFineMotorNDominant();
-                        break;
-                    case "Fine Motor (Hold)": x = record.getFineMotorHold();
-                        break;
-                }
-                Log.v(TAG, recordColumn+": "+x);
-                lineData.addEntry(new Entry(x, dataset.getEntryCount()), 0);
-            }
-            setLineChartValueFormatter(lineData);
+        Record record;
+        float x; int age;
+        for(int i = 0; i < patientRecords.size(); i++) {
+            record = patientRecords.get(i);
+            lineData.addXValue(record.getDateCreated());
+            x = getColumnValue(record);
+            Log.v(TAG, recordColumn+": "+x);
+            lineData.addEntry(new Entry(x, dataset.getEntryCount()), 0);
+        }
+        setLineChartValueFormatter(lineData);
 
-            // notify chart data has changed
-            lineChart.notifyDataSetChanged();
+        // notify chart data has changed
+        lineChart.notifyDataSetChanged();
 
+    }
+
+    private float getColumnValue(Record record) {
+        float x;
+        switch (recordColumn) {
+            default:
+            case "Height (in cm)": x = Double.valueOf(record.getHeight()).floatValue();
+                break;
+            case "Weight (in kg)": x = Double.valueOf(record.getWeight()).floatValue();
+                break;
+            case "BMI": x = BMICalculator.computeBMIMetric(
+                    Double.valueOf(record.getHeight()).intValue(),
+                    Double.valueOf(record.getWeight()).intValue());
+                break;
+            case "Visual Acuity Left":
+                x = LineChartValueFormatter.ConvertVisualAcuity(record.getVisualAcuityLeft());
+                break;
+            case "Visual Acuity Right":
+                x = LineChartValueFormatter.ConvertVisualAcuity(record.getVisualAcuityRight());
+                break;
+            case "Color Vision":
+                x = LineChartValueFormatter.ConvertColorVision(record.getColorVision());
+                break;
+            case "Hearing Left":
+                x = LineChartValueFormatter.ConvertHearing(record.getHearingLeft());
+                break;
+            case "Hearing Right":
+                x = LineChartValueFormatter.ConvertHearing(record.getHearingRight());
+                break;
+            case "Gross Motor": x = record.getGrossMotor();
+                break;
+            case "Fine Motor (Dominant Hand)": x = record.getFineMotorDominant();
+                break;
+            case "Fine Motor (Non-Dominant Hand)": x = record.getFineMotorNDominant();
+                break;
+            case "Fine Motor (Hold)": x = record.getFineMotorHold();
+                break;
+        }
+        return x;
     }
 
     private void setLineChartValueFormatter(LineData lineData) {
@@ -269,17 +304,30 @@ public class ViewPatientActivity extends AppCompatActivity {
         return lineDataset;
     }
 
-    private void prepareLineChart() {
+    private void customizeChart(Chart chart) {
         // customize line chart
-        lineChart.setDescription("");
-        lineChart.setNoDataTextDescription("No data for the moment");
-
+        chart.setDescription("");
+        chart.setNoDataTextDescription("No data for the moment");
         // enable value highlighting
-        lineChart.setHighlightPerTapEnabled(true);
-
+        chart.setHighlightPerTapEnabled(true);
         // enable touch gestures
-        lineChart.setTouchEnabled(true);
+        chart.setTouchEnabled(true);
+        // alternative background color
+        chart.setBackgroundColor(Color.LTGRAY);
+        // get legend object
+        Legend l = chart.getLegend();
+        // customize legend
+        l.setForm(Legend.LegendForm.LINE);
+        l.setTextColor(Color.WHITE);
+        // customize xAxis
+        XAxis xl = chart.getXAxis();
+        xl.setTextColor(Color.WHITE);
+        xl.setDrawGridLines(false);
+        xl.setAvoidFirstLastClipping(true);
+    }
 
+
+    private void prepareLineChart() {
         // enable draging and scalinng
         lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
@@ -288,21 +336,6 @@ public class ViewPatientActivity extends AppCompatActivity {
         // enable pinch zoom to avoid scaling x and y separately
         lineChart.setPinchZoom(true);
 
-        // alternative background color
-        lineChart.setBackgroundColor(Color.LTGRAY);
-
-        // get legend object
-        Legend l = lineChart.getLegend();
-
-        // customize legend
-        l.setForm(Legend.LegendForm.LINE);
-        l.setTextColor(Color.WHITE);
-
-        XAxis xl = lineChart.getXAxis();
-        xl.setTextColor(Color.WHITE);
-        xl.setDrawGridLines(false);
-        xl.setAvoidFirstLastClipping(true);
-
         YAxis yl = lineChart.getAxisLeft();
         yl.setTextColor(Color.WHITE);
         //yl.setAxisMaxValue(120f);
@@ -310,18 +343,35 @@ public class ViewPatientActivity extends AppCompatActivity {
 
         YAxis y12 = lineChart.getAxisLeft();
         y12.setEnabled(false);
+    }
 
-        // adjust size of layout
-        ViewGroup.LayoutParams params = lineChart.getLayoutParams();
-        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+    private void createCharts() {
+        /* create line chart */
+        lineChart = new LineChart(this);
+        customizeChart(lineChart);
+        /* create radar chart */
+        radarChart = new RadarChart(this);
+        customizeChart(radarChart);
+    }
+
+    private Chart getCurrentChart(){
+        Chart chart;
+        switch (chartType) {
+            default:
+            case "Line Chart": chart = lineChart;
+                break;
+            case "Radar Chart": chart = radarChart;
+                break;
+        }
+        return chart;
     }
 
     private void addChartToView() {
-        /* create line chart */
-        lineChart = new LineChart(this);
-        /* add line chart to view */
-        graphLayout.addView(lineChart);
+        graphLayout.addView(getCurrentChart());
+        ViewGroup.LayoutParams params = getCurrentChart().getLayoutParams();
+        /* match chart size to layout size */
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
     private void getPatientData() {
@@ -352,5 +402,29 @@ public class ViewPatientActivity extends AppCompatActivity {
         /* close database after retrieval */
         getBetterDb.closeDatabase();
         Log.v(TAG, "number of records: "+patientRecords.size());
+    }
+
+    private void prepareRecordDateSpinner() {
+        List<String> recordDateList = new ArrayList();
+        for(int i = 0; i < patientRecords.size(); i++) {
+            recordDateList.add(patientRecords.get(i).getDateCreated());
+        }
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
+                R.layout.support_simple_spinner_dropdown_item, recordDateList);
+        spinnerAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+        spRecordDate.setAdapter(spinnerAdapter);
+        spRecordDate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Record record = patientRecords.get(position);
+                displayRecord(record);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Record lastRecord = patientRecords.get(patientRecords.size()-1);
+                displayRecord(lastRecord);
+            }
+        });
     }
 }

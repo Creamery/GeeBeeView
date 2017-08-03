@@ -46,7 +46,7 @@ public class ViewHPIActivity extends AppCompatActivity {
         prepareData();
 
         tvPatientName.setText(patient.getLastName()+", "+patient.getFirstName());
-        if(hpiId == 0) {
+        if(hpiId == 0 && HPIs.size() > 0) {
             hpiId = HPIs.get(HPIs.size()-1).getHpi_id();
         }
         HPI hpi = findHPI(hpiId);

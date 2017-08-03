@@ -26,6 +26,7 @@ import seebee.geebeeview.model.consultation.Symptom;
 import seebee.geebeeview.model.consultation.SymptomFamily;
 import seebee.geebeeview.model.monitoring.PatientRecord;
 import seebee.geebeeview.model.monitoring.Record;
+import seebee.geebeeview.model.monitoring.ValueCounter;
 
 /**
  * The DatabaseAdapter class contains methods which serve as database queries.
@@ -767,7 +768,7 @@ public class DatabaseAdapter {
     }
 
     /**
-     * Get the patients which has an ID value of
+     * Get the patient which has an ID value of
      * {@code patientID}.
      * @param patientID ID of the patient to be queried.
      * @return the record of the patient.
@@ -816,5 +817,54 @@ public class DatabaseAdapter {
         }
         c.close();
         return HPIs;
+    }
+
+    public ArrayList<Patient> getPatientsWithCondition(int schoolId, String date, String column, String value) {
+        ArrayList<Patient> patients = new ArrayList<Patient>();
+        Cursor c;
+        if(column.contains("motor")) {
+            if(column.contains("hold")) {
+                c = getBetterDb.rawQuery("SELECT * "
+                        +" FROM "+Record.TABLE_NAME+" AS r, "+Patient.TABLE_NAME+" AS p"
+                        +" WHERE r."+Patient.C_PATIENT_ID+" = p."+Record.C_PATIENT_ID
+                        +" AND p."+Patient.C_SCHOOL_ID+" = "+schoolId
+                        +" AND r."+Record.C_DATE_CREATED+" LIKE '"+date+"' "
+                        +" AND r."+column+" = "+ ValueCounter.ConvertHold(value)
+                        +" GROUP BY p.patient_id; ", null);
+            } else {
+                c = getBetterDb.rawQuery("SELECT * "
+                        + " FROM " + Record.TABLE_NAME + " AS r, " + Patient.TABLE_NAME + " AS p"
+                        + " WHERE r." + Patient.C_PATIENT_ID + " = p." + Record.C_PATIENT_ID
+                        + " AND p." + Patient.C_SCHOOL_ID + " = " + schoolId
+                        +" AND r."+Record.C_DATE_CREATED+" LIKE '"+date+"' "
+                        + " AND r." + column + " = " + ValueCounter.ConvertMotor(value)
+                        + " GROUP BY p.patient_id; ", null);
+            }
+        } else {
+            c = getBetterDb.rawQuery("SELECT * "
+                    +" FROM "+Record.TABLE_NAME+" AS r, "+Patient.TABLE_NAME+" AS p"
+                    +" WHERE r."+Patient.C_PATIENT_ID+" = p."+Record.C_PATIENT_ID
+                    +" AND p."+Patient.C_SCHOOL_ID+" = "+schoolId
+                    +" AND r."+Record.C_DATE_CREATED+" LIKE '"+date+"' "
+                    +" AND r."+column+" LIKE '"+value+"' "
+                    +" GROUP BY p.patient_id; ", null);
+        }
+
+        if(c.moveToFirst()){
+            do{
+                patients.add(new Patient(c.getInt(c.getColumnIndex(Patient.C_PATIENT_ID)),
+                        c.getString(c.getColumnIndex(Patient.C_FIRST_NAME)),
+                        c.getString(c.getColumnIndex(Patient.C_LAST_NAME)),
+                        c.getString(c.getColumnIndex(Patient.C_BIRTHDAY)),
+                        c.getInt(c.getColumnIndex(Patient.C_GENDER)),
+                        c.getInt(c.getColumnIndex(Patient.C_SCHOOL_ID)),
+                        c.getInt(c.getColumnIndex(Patient.C_HANDEDNESS)),
+                        c.getString(c.getColumnIndex(Patient.C_REMARKS_STRING)),
+                        c.getBlob(c.getColumnIndex(Patient.C_REMARKS_AUDIO))));
+            }while(c.moveToNext());
+        }
+        c.close();
+
+        return patients;
     }
 }

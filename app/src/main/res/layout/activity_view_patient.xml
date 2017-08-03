@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/DefaultBackground"
+<LinearLayout
+    style="@style/DefaultBackground"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -123,25 +124,35 @@
                     android:text="@string/remarks"/>
             </LinearLayout>
 
-            <LinearLayout
+<!--            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
+                -->
                 <Button
                     android:id="@+id/btn_view_hpi"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     style="@style/DefaultButton"
                     android:text="@string/view_hpi"/>
-                <Button
+            <!--    <Button
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     style="@style/DefaultButton"
                     android:text="@string/view_prev_records"/>
-            </LinearLayout>
-
+            </LinearLayout> -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/DefaultText"
+                android:text="@string/displayed_data"/>
+            <Spinner
+                android:id="@+id/sp_vp_record_column"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/record_column_array_num">
+            </Spinner>
             <View
                 android:layout_height="5dp"
                 android:layout_width="match_parent"
@@ -149,10 +160,10 @@
                 android:background="@color/yellow"/>
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -328,26 +339,20 @@
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>
-
+            <Spinner
+                style="@style/DefaultSpinner"
+                android:id="@+id/sp_record_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </Spinner>
         </LinearLayout>
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/patient_chart_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_weight="1">
-            <Spinner
-                android:id="@+id/sp_vp_record_column"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/record_column_array_num">
-            </Spinner>
-            <RelativeLayout
-                android:id="@+id/patient_chart_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
 
-            </RelativeLayout>
-        </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 

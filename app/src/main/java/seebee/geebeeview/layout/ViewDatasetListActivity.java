@@ -1,7 +1,6 @@
 package seebee.geebeeview.layout;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,10 +13,8 @@ import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
 import seebee.geebeeview.model.account.Dataset;
 import seebee.geebeeview.model.adapter.DatasetAdapter;
-import seebee.geebeeview.model.consultation.School;
-import seebee.geebeeview.model.monitoring.Record;
 
-public class ViewDatasetListActivity extends AppCompatActivity {
+public class ViewDatasetListActivity extends BaseActivity {
 
     RecyclerView rvDataset;
     ArrayList<Dataset> datasetList = new ArrayList<>();
@@ -27,7 +24,9 @@ public class ViewDatasetListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_dataset_list);
-
+        /* set title shown in the upper right corner
+        * setTitle(R.string.dataset_title);
+        */
         rvDataset = (RecyclerView) findViewById(R.id.rv_dataset);
 
         datasetAdapter = new DatasetAdapter(datasetList);

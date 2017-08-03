@@ -14,11 +14,11 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
  */
 
 public class LineChartValueFormatter  {
-    private final static float[] visualAcuity = {-200f, -100f, -70f, -50f, -40f, -30f, -30f, -25f, 20f, -15f, -10f, -5f};
+    //private final static float[] visualAcuity = {-200f, -100f, -70f, -50f, -40f, -30f, -30f, -25f, 20f, -15f, -10f, -5f};
     private final static String TAG = "LineChartValueFormatter";
 
     public static float ConvertVisualAcuity(String visualAcuity) {
-        float value = 0;
+        float value;
         switch (visualAcuity) {
             case "20/200": value = -200f;
                 break;

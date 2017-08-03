@@ -40,7 +40,6 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
@@ -57,7 +56,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
     ArrayList<String> datasetList, filterList;
     TextHolderAdapter datasetAdapter, filterAdapter;
     RecyclerView rvDataset, rvFilter;
-    Button btnAddDataset, btnAddFilter, btnViewPatientList, btnViewHPIList;
+    Button btnAddDataset, btnAddFilter, btnViewPatientList, btnViewHPIList, btnBack;
     RelativeLayout graphLayout; /* space where graph will be set on */
 
     int schoolID;
@@ -78,7 +77,6 @@ public class DataVisualizationActivity extends AppCompatActivity {
     private String recordColumn = "BMI";
     private String chartType = "Pie Chart";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +92,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         btnAddFilter = (Button) findViewById(R.id.btn_add_filter);
         btnViewPatientList = (Button) findViewById(R.id.btn_view_patient_list);
         btnViewHPIList = (Button) findViewById(R.id.btn_view_hpi_list);
+        btnBack = (Button) findViewById(R.id.btn_dv_back);
         rvDataset = (RecyclerView) findViewById(R.id.rv_dv_dataset);
         rvFilter = (RecyclerView) findViewById(R.id.rv_dv_filter);
         graphLayout = (RelativeLayout) findViewById(R.id.graph_container);
@@ -124,6 +123,14 @@ public class DataVisualizationActivity extends AppCompatActivity {
             }
         });
 
+        /* set listener for back button */
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         /* ready recycler view list for dataset */
         datasetList = new ArrayList<>();
         datasetAdapter = new TextHolderAdapter(datasetList);
@@ -151,7 +158,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 recordColumn = parent.getItemAtPosition(position).toString();
                 Toast.makeText(parent.getContext(),
-                        "OnItemSelectedListener : " + parent.getItemAtPosition(position).toString(),
+                        "OnItemSelectedListener : " + recordColumn,
                         Toast.LENGTH_SHORT).show();
                 /* change the contents of the chart */
                 if(pieChart != null || barChart != null) {
@@ -224,6 +231,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
     }
 
     private void createCharts() {
+        graphLayout.setBackgroundColor(Color.LTGRAY);
         createPieChart();
         createBarChart();
         createScatterChart();
@@ -286,8 +294,20 @@ public class DataVisualizationActivity extends AppCompatActivity {
                 if(entry == null)
                     return;
                 Toast.makeText(DataVisualizationActivity.this,
-                        xData[entry.getXIndex()] + " = " + entry.getVal() + "%",
+                        xData[entry.getXIndex()] + " = " + entry.getVal() + " children",
                         Toast.LENGTH_SHORT).show();
+                Log.v(TAG, xData[entry.getXIndex()] + " = " + entry.getVal() + " children");
+
+                if(!recordColumn.contentEquals("BMI")) {
+                    Intent intent = new Intent(getBaseContext(), ViewPatientListActivity.class);
+                    intent.putExtra(School.C_SCHOOL_ID, schoolID);
+                    intent.putExtra(School.C_SCHOOLNAME, schoolName);
+                    intent.putExtra(Record.C_DATE_CREATED, date);
+                    intent.putExtra("column", ValueCounter.convertRecordColumn(recordColumn));
+                    intent.putExtra("value", xData[entry.getXIndex()]);
+                    startActivity(intent);
+                }
+
             }
 
             @Override
@@ -322,15 +342,13 @@ public class DataVisualizationActivity extends AppCompatActivity {
         /* add pie chart */
         pieChart = new PieChart(this);
 
-        graphLayout.setBackgroundColor(Color.LTGRAY);
-
         // configure pie chart
         pieChart.setUsePercentValues(true);
         pieChart.setDescriptionTextSize(R.dimen.title_text_size);
 
         // enable hole and configure
         pieChart.setDrawHoleEnabled(true);
-        pieChart.setHoleColor(Color.LTGRAY); //mChart.setHoleColorTransparent(true);
+        pieChart.setHoleColor(Color.LTGRAY);
         pieChart.setHoleRadius(7);
         pieChart.setTransparentCircleRadius(100);
 
@@ -421,6 +439,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
         for(int i = 0; i < yData.length; i++) {
             yVals1.add(new Entry(yData[i], i));
+
         }
 
         return yVals1;
@@ -429,7 +448,10 @@ public class DataVisualizationActivity extends AppCompatActivity {
     private ArrayList<String> createLabels() {
         ArrayList<String> xVals = new ArrayList<>();
 
-        Collections.addAll(xVals, xData);
+        for(int i = 0; i < yData.length; i++) {
+            xVals.add(xData[i]);
+
+        }
 
         return xVals;
     }
@@ -440,6 +462,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         for(int i = 0; i < yData.length; i++) {
             /* BubbleEntry(xpos, ypos, size)  */
             yVals1.add(new BubbleEntry(i, Integer.valueOf(year), yData[i]));
+
         }
 
         ArrayList<String> labels = createLabels();
@@ -469,6 +492,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
         for(int i = 0; i < yData.length; i++) {
             yVals1.add(new BarEntry(yData[i], i));
+
         }
 
         ArrayList<String> xVals = createLabels();
