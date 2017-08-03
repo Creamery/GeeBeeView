@@ -3,6 +3,7 @@ package seebee.geebeeview.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -104,6 +105,7 @@ public class DatabaseAdapter {
             getBetterDatabaseHelper.openDatabase();
             getBetterDatabaseHelper.close();
             getBetterDb = getBetterDatabaseHelper.getReadableDatabase();
+
         }catch (SQLException sqle) {
             Log.e(TAG, "open >>" +sqle.toString());
             throw sqle;
@@ -503,7 +505,7 @@ public class DatabaseAdapter {
     */
     /**
      * Insert {@code record} to the database.
-     * @param record Record to be inserted to the database.
+     * @param record Record to be inserted to the database.*/
 
     public void insertRecord(Record record){
         ContentValues values = new ContentValues();
@@ -530,7 +532,7 @@ public class DatabaseAdapter {
         row = (int) getBetterDb.insert(Record.TABLE_NAME, null, values);
         Log.d(TAG, "insertRecord Result: " + row);
     }
-    */
+
     /**
      * Insert {@code hpi} to the database.
      * @param hpi HPI to be inserted to the database.
@@ -707,16 +709,17 @@ public class DatabaseAdapter {
         /* SELECT DISTINCT s.name, r.date_created
          * FROM tbl_school AS s, tbl_record AS r, tbl_patient AS p
          * WHERE s.schoolID = p.schoolID AND r.patientID = p.patientID */
-        Cursor c = getBetterDb.rawQuery("SELECT DISTINCT s."+School.C_SCHOOL_ID+", s."+School.C_SCHOOLNAME+" , r."+Record.C_DATE_CREATED
+        /*Cursor c = getBetterDb.rawQuery("SELECT DISTINCT s."+School.C_SCHOOL_ID+", s."+School.C_SCHOOLNAME+" , r."+Record.C_DATE_CREATED
                 +" FROM "+School.TABLE_NAME+" AS s, "+Record.TABLE_NAME+" AS r, "+Patient.TABLE_NAME+" AS p "
                 +" WHERE s."+School.C_SCHOOL_ID+" = p."+Patient.C_SCHOOL_ID
-                +" AND r."+Record.C_PATIENT_ID+" = p."+Patient.C_PATIENT_ID, null);
+                +" AND r."+Record.C_PATIENT_ID+" = p."+Patient.C_PATIENT_ID, null);*/
+        Cursor c = getBetterDb.rawQuery("SELECT * FROM datasets;", null);
         if(c.moveToFirst()){
             do{
                 datasetList.add(new Dataset(c.getInt(c.getColumnIndex(School.C_SCHOOL_ID)),
                         c.getString(c.getColumnIndex(School.C_SCHOOLNAME)),
                         c.getString(c.getColumnIndex(Record.C_DATE_CREATED)),
-                        1));
+                        c.getInt(c.getColumnIndex("status"))));
                 /* 0 - not downloaded, 1 - downloaded*/
             }while(c.moveToNext());
         }
@@ -816,5 +819,139 @@ public class DatabaseAdapter {
         }
         c.close();
         return HPIs;
+    }
+
+
+    public boolean updateDatasetList(Dataset dataset){
+        String sql = "INSERT OR REPLACE INTO datasets (school_id, name,  date_created, status) " +
+                     "VALUES(? ,? ,?," +
+                     "(SELECT status FROM datasets WHERE school_id = ? AND name LIKE ?" +
+                "  AND date_created LIKE ? )); ";
+//        ContentValues values = new ContentValues();
+//        values.put("school_id", dataset.getSchoolID());
+//        values.put("name");
+
+
+
+
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+//        try{
+//            getBetterDb.execSQL(sql, new String[]{ Integer.toString(dataset.getSchoolID()),  dataset.getSchoolName(), dataset.getDate().replaceAll("'",""),
+//                    Integer.toString(dataset.getSchoolID()),  dataset.getSchoolName(), dataset.getDate().replaceAll("'","") });
+//        }catch (android.database.SQLException e){
+//            Log.e("DATASET: ", "Replace or insert failed!");
+//            e.printStackTrace();;
+//            return false;
+//        }
+
+        ContentValues initialValues = new ContentValues();
+        //initialValues.put("status", 1); // the execution is different if _id is 2
+        initialValues.put("school_id", dataset.getSchoolID());
+        initialValues.put("name", dataset.getSchoolName());
+        initialValues.put("date_created", dataset.getDate());
+
+
+        int id = (int) getBetterDb.insertWithOnConflict("datasets", null, initialValues, SQLiteDatabase.CONFLICT_REPLACE);
+
+
+        return true;
+    }
+
+
+
+    public void updateRecord(Record record){
+        ContentValues values = new ContentValues();
+        int row;
+
+        values.put(Record.C_PATIENT_ID, record.getPatient_id());
+        values.put(Record.C_DATE_CREATED, record.getDateCreated());
+        values.put(Record.C_HEIGHT, record.getHeight());
+        values.put(Record.C_WEIGHT, record.getWeight());
+        values.put(Record.C_VISUAL_ACUITY_LEFT, record.getVisualAcuityLeft());
+        values.put(Record.C_VISUAL_ACUITY_RIGHT, record.getVisualAcuityRight());
+        values.put(Record.C_COLOR_VISION, record.getColorVision());
+        values.put(Record.C_HEARING_LEFT, record.getHearingLeft());
+        values.put(Record.C_HEARING_RIGHT, record.getHearingRight());
+        values.put(Record.C_GROSS_MOTOR, record.getGrossMotor());
+        values.put(Record.C_FINE_MOTOR_DOMINANT, record.getFineMotorDominant());
+        values.put(Record.C_FINE_MOTOR_N_DOMINANT, record.getFineMotorNDominant());
+        values.put(Record.C_FINE_MOTOR_HOLD, record.getFineMotorHold());
+        values.put(Record.C_VACCINATION, record.getVaccination());
+        values.put(Record.C_PATIENT_PICTURE, record.getPatientPicture());
+        values.put(Record.C_REMARKS_STRING, record.getRemarksString());
+        values.put(Record.C_REMARKS_AUDIO, record.getRemarksAudio());
+
+
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        row = (int) getBetterDb.replaceOrThrow(Record.TABLE_NAME, null, values);
+        //Log.d(TAG, "replaceRecord Result: " + row);
+        closeDatabase();
+
+
+
+    }
+    public void updateDatasetStatus(Dataset dataset){
+//        int row;
+//        String sql = "UPDATE datasets SET status = 1 WHERE school_id = ? AND date_created LIKE  ?;";
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        /*ContentValues values = new ContentValues();
+//        values.put("school_id", Integer.toString(dataset.getSchoolID()));
+//        values.put("school_id", dataset.getDate().replaceAll("'",""));
+        values.put("status", 1);
+
+
+        try{
+            //row = (int) getBetterDb.update("datasets", values, "school_id="+dataset.getSchoolID() + " AND " + "date_created LIKE "+dataset.getDate().replaceAll("'",""), null);
+
+             getBetterDb.execSQL(sql, new String[]{ Integer.toString(dataset.getSchoolID()), dataset.getDate()});
+//            Log.d(TAG, "Update dataset status: " + row);
+        }catch (android.database.SQLException e){
+            Log.e("DATASET: ", "Replace or insert failed!");
+            e.printStackTrace();;
+        }*/
+        //closeDatabase();
+        ContentValues initialValues = new ContentValues();
+        initialValues.put("status", 1); // the execution is different if _id is 2
+
+
+        int id = (int) getBetterDb.insertWithOnConflict("datasets", null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+        if (id == -1) {
+            getBetterDb.update("datasets", initialValues, "school_id = ? AND date_created LIKE ? AND name LIKE ?", new String[] {Integer.toString(dataset.getSchoolID()), dataset.getDate(), dataset.getSchoolName()});  // number 1 is the _id here, update to variable for your code
+        }
+
+    }
+
+    public void updatePatient(Patient patient){
+        ContentValues values = new ContentValues();
+        int row;
+
+        values.put(Patient.C_FIRST_NAME, patient.getFirstName());
+        values.put(Patient.C_LAST_NAME, patient.getLastName());
+        values.put(Patient.C_BIRTHDAY, patient.getBirthday());
+        values.put(Patient.C_GENDER, patient.getGender());
+        values.put(Patient.C_SCHOOL_ID, patient.getSchoolId());
+        values.put(Patient.C_HANDEDNESS, patient.getHandedness());
+        values.put(Patient.C_REMARKS_STRING, patient.getRemarksString());
+        values.put(Patient.C_REMARKS_AUDIO, patient.getRemarksAudio());
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        row = (int) getBetterDb.replaceOrThrow(Patient.TABLE_NAME, null, values);
+        Log.d(TAG, "replacePatient Result: " + row);
     }
 }
