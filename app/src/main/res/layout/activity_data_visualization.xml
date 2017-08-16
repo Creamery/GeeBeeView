@@ -13,15 +13,15 @@
         <Button
             android:id="@+id/btn_dv_back"
             android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:background="@drawable/btn_back"
-            android:backgroundTint="@color/yellow" />
+            style="@style/DefaultButton"
+            android:text="@string/btn_back"/>
         <TextView
             style="@style/TitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/btn_dv_back"
+            android:layout_toEndOf="@id/btn_dv_back"
             android:text="@string/data_visualization" />
     </RelativeLayout>
 

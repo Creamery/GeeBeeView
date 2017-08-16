@@ -18,14 +18,12 @@ import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.charts.RadarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.data.RadarData;
 import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
@@ -38,6 +36,7 @@ import seebee.geebeeview.database.DatabaseAdapter;
 import seebee.geebeeview.model.consultation.Patient;
 import seebee.geebeeview.model.monitoring.AgeCalculator;
 import seebee.geebeeview.model.monitoring.BMICalculator;
+import seebee.geebeeview.model.monitoring.IdealValue;
 import seebee.geebeeview.model.monitoring.LineChartValueFormatter;
 import seebee.geebeeview.model.monitoring.Record;
 
@@ -54,10 +53,11 @@ public class ViewPatientActivity extends AppCompatActivity {
     private int patientID;
     private Patient patient;
     private ArrayList<Record> patientRecords;
+    private IdealValue idealValue;
 
     private RelativeLayout graphLayout;
     private LineChart lineChart;
-    private RadarChart radarChart;
+//    private RadarChart radarChart;
     private Spinner spRecordColumn;
     private String recordColumn = "Height (in cm)";
     private String chartType = "Line Chart";
@@ -134,9 +134,9 @@ public class ViewPatientActivity extends AppCompatActivity {
                 if(lineChart != null) {
                     lineChart.clear();
                     prepareLineChartData();
-                } else {
-                    radarChart.clear();
-                    prepareRadarChartData();
+//                } else {
+//                    radarChart.clear();
+//                    prepareRadarChartData();
                 }
             }
 
@@ -186,14 +186,14 @@ public class ViewPatientActivity extends AppCompatActivity {
         tvFineMotorND.setText(record.getFineMotorString(record.getFineMotorNDominant()));
     }
 
-    private void prepareRadarChartData() {
-        RadarData radarData = new RadarData();
-        ArrayList<Entry> entries;
-        Record record = patientRecords.get(0);
-        for(int i = 0; i < 5; i++) {
-            //entries.add(new Entry());
-        }
-    }
+//    private void prepareRadarChartData() {
+//        RadarData radarData = new RadarData();
+//        ArrayList<Entry> entries;
+//        Record record = patientRecords.get(0);
+//        for(int i = 0; i < 5; i++) {
+//            //entries.add(new Entry());
+//        }
+//    }
 
     private void prepareLineChartData() {
         LineData lineData = new LineData();
@@ -201,21 +201,67 @@ public class ViewPatientActivity extends AppCompatActivity {
 
         // add data to line chart
         lineChart.setData(lineData);
-        LineDataSet dataset = (LineDataSet) lineData.getDataSetByIndex(0);
-        if(dataset == null) {
-            dataset = createLineDataSet();
-            lineData.addDataSet(dataset);
+        /* dataset containing values from patient, index 0 */
+        LineDataSet patientDataset = createLineDataSet(0);
+        lineData.addDataSet(patientDataset);
+        if(recordColumn.contains("Height")) {
+            LineDataSet n3Dataset, n2Dataset, n1Dataset, medianDataset, p1Dataset, p2Dataset, p3Dataset;
+            /* dataset containing values from -3SD, index 1 */
+            n3Dataset = createLineDataSet(1);
+            lineData.addDataSet(n3Dataset);
+            /* dataset containing values from -2SD, index 2 */
+            n2Dataset = createLineDataSet(2);
+            lineData.addDataSet(n2Dataset);
+            /* dataset containing values from -1SD */
+            n1Dataset = createLineDataSet(3);
+            lineData.addDataSet(n1Dataset);
+            /* dataset containing values from median */
+            medianDataset = createLineDataSet(4);
+            lineData.addDataSet(medianDataset);
+            /* dataset containing values from 1SD */
+            p1Dataset = createLineDataSet(5);
+            lineData.addDataSet(p1Dataset);
+            /* dataset containing values from 2SD */
+            p2Dataset = createLineDataSet(6);
+            lineData.addDataSet(p2Dataset);
+            /* dataset containing values from 1SD */
+            p3Dataset = createLineDataSet(7);
+            lineData.addDataSet(p3Dataset);
         }
 
         Record record;
-        float x; int age;
+        float yVal; int age;
+        ArrayList<Entry> patientEntries = new ArrayList<>();
+        ArrayList<Entry> n3Entries = new ArrayList<>();
+
         for(int i = 0; i < patientRecords.size(); i++) {
             record = patientRecords.get(i);
             lineData.addXValue(record.getDateCreated());
-            x = getColumnValue(record);
-            Log.v(TAG, recordColumn+": "+x);
-            lineData.addEntry(new Entry(x, dataset.getEntryCount()), 0);
+            yVal = getColumnValue(record);
+            //Log.v(TAG, recordColumn+": "+yVal);
+            /* add patient data to patient entry, index 0 */
+            lineData.addEntry(new Entry(yVal, i), 0);
+            age = patient.getAge(record.getDateCreated());
+            if(recordColumn.contains("Height") && age >= 5 && age <= 19) {
+                getIdealValues(age);
+                //Log.v(TAG, recordColumn+"(-3SD): "+idealValue.getN3SD());
+                /* add -3SD from ideal value data to patient entry, index 1 */
+                lineData.addEntry(new Entry(idealValue.getN3SD(), i), 1);
+                /* add -2SD from ideal value data to patient entry, index 2 */
+                lineData.addEntry(new Entry(idealValue.getN2SD(), i), 2);
+                /* add -1SD from ideal value data to patient entry, index 3 */
+                lineData.addEntry(new Entry(idealValue.getN1SD(), i), 3);
+                /* add median of ideal value data to patient entry, index 4 */
+                lineData.addEntry(new Entry(idealValue.getMedian(), i), 4);
+                /* add 1SD from ideal value data to patient entry, index 5 */
+                lineData.addEntry(new Entry(idealValue.getP1SD(), i), 5);
+                /* add 2SD from ideal value data to patient entry, index 6 */
+                lineData.addEntry(new Entry(idealValue.getP2SD(), i), 6);
+                /* add 3SD from ideal value data to patient entry, index 7 */
+                lineData.addEntry(new Entry(idealValue.getP3SD(), i), 7);
+            }
         }
+
         setLineChartValueFormatter(lineData);
 
         // notify chart data has changed
@@ -265,7 +311,6 @@ public class ViewPatientActivity extends AppCompatActivity {
     private void setLineChartValueFormatter(LineData lineData) {
         if(recordColumn.contains("BMI")) {
             int age = AgeCalculator.calculateAge(patient.getBirthday(), patientRecords.get(patientRecords.size()-1).getDateCreated());
-            //TODO: Make sure that bmi result (String) is right
             lineChart.getAxisRight().setValueFormatter(LineChartValueFormatter.getYAxisValueFormatterBMI(patient.isGirl(), age));
         } else if(recordColumn.contains("Visual Acuity")) {
             lineData.setValueFormatter(LineChartValueFormatter.getValueFormatterVisualAcuity());
@@ -290,19 +335,54 @@ public class ViewPatientActivity extends AppCompatActivity {
         }
     }
 
-    private LineDataSet createLineDataSet() {
-        LineDataSet lineDataset = new LineDataSet(null, recordColumn);
-        lineDataset.setDrawCubic(true);
-        lineDataset.setCubicIntensity(0.2f);
-        lineDataset.setAxisDependency(YAxis.AxisDependency.LEFT);
-        lineDataset.setColor(ColorTemplate.getHoloBlue());
-        lineDataset.setCircleColor(ColorTemplate.getHoloBlue());
-        lineDataset.setLineWidth(2f);
-        lineDataset.setFillAlpha(4);
-        lineDataset.setFillColor(ColorTemplate.getHoloBlue());
-        lineDataset.setHighLightColor(Color.rgb(244, 11, 11));
-        lineDataset.setValueTextColor(Color.WHITE);
-        lineDataset.setValueTextSize(10f);
+    private LineDataSet createLineDataSet(int index) {
+        String datasetDescription;
+        int lineColor;
+        float lineWidth = 1f;
+        switch(index) {
+            default:
+            case 0: datasetDescription = "Patient";
+                lineColor = ColorTemplate.getHoloBlue();
+                lineWidth = 2f;
+                break;
+            case 1: datasetDescription = "-3 SD";
+                lineColor = Color.MAGENTA;
+                break;
+            case 2: datasetDescription = "-2 SD";
+                lineColor = Color.CYAN;
+                break;
+            case 3: datasetDescription = "-1 SD";
+                lineColor = Color.YELLOW;
+                break;
+            case 4: datasetDescription = "Median";
+                lineColor = Color.GREEN;
+                break;
+            case 5: datasetDescription = "1 SD";
+                lineColor = Color.YELLOW;
+                break;
+            case 6: datasetDescription = "2 SD";
+                lineColor = Color.CYAN;
+                break;
+            case 7: datasetDescription = "3 SD";
+                lineColor = Color.MAGENTA;
+            break;
+        }
+        LineDataSet lineDataset = new LineDataSet(null, datasetDescription);
+        lineDataset.setColor(lineColor);
+        lineDataset.setLineWidth(lineWidth);
+
+        if(index == 0) {
+            lineDataset.setCircleColor(Color.WHITE);
+            lineDataset.setCircleRadius(3f);
+            lineDataset.setFillAlpha(4);
+            lineDataset.setFillColor(lineColor);
+            lineDataset.setHighLightColor(Color.rgb(244, 11, 11));
+        } else {
+            lineDataset.setDrawCircles(false);
+            lineDataset.setValueTextColor(Color.TRANSPARENT);
+        }
+
+
         return lineDataset;
     }
 
@@ -352,8 +432,8 @@ public class ViewPatientActivity extends AppCompatActivity {
         lineChart = new LineChart(this);
         customizeChart(lineChart);
         /* create radar chart */
-        radarChart = new RadarChart(this);
-        customizeChart(radarChart);
+//        radarChart = new RadarChart(this);
+//        customizeChart(radarChart);
     }
 
     private Chart getCurrentChart(){
@@ -362,8 +442,8 @@ public class ViewPatientActivity extends AppCompatActivity {
             default:
             case "Line Chart": chart = lineChart;
                 break;
-            case "Radar Chart": chart = radarChart;
-                break;
+//            case "Radar Chart": chart = radarChart;
+//                break;
         }
         return chart;
     }
@@ -406,8 +486,22 @@ public class ViewPatientActivity extends AppCompatActivity {
         Log.v(TAG, "number of records: "+patientRecords.size());
     }
 
+    private void getIdealValues(int age) {
+        DatabaseAdapter getBetterDb = new DatabaseAdapter(this);
+        /* ready database for reading */
+        try {
+            getBetterDb.openDatabaseForRead();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        /* get ideal value from database */
+        idealValue = getBetterDb.getIdealValue(Record.C_HEIGHT, patient.getGender(), age);
+        /* close database after retrieval */
+        getBetterDb.closeDatabase();
+    }
+
     private void prepareRecordDateSpinner() {
-        List<String> recordDateList = new ArrayList();
+        List<String> recordDateList = new ArrayList<String>();
         for(int i = 0; i < patientRecords.size(); i++) {
             recordDateList.add(patientRecords.get(i).getDateCreated());
         }

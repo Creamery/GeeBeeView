@@ -23,7 +23,6 @@
         <activity android:name=".layout.ViewPatientActivity" />
         <activity android:name=".layout.ViewHPIListActivity" />
         <activity android:name=".layout.ViewHPIActivity" />
-        <!--<activity android:name=".layout.BaseActivity"></activity>-->
     </application>
 
 </manifest>

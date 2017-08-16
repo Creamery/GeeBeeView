@@ -468,7 +468,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         ArrayList<String> labels = createLabels();
 
         BubbleDataSet bubbleDataSet = new BubbleDataSet(yVals1, "");
-        bubbleDataSet.addColor(colors.get(0));
+        bubbleDataSet.setColor(colors.get(0));
         BubbleData bubbleData = new BubbleData(labels, bubbleDataSet);
         bubbleChart.setData(bubbleData);
         bubbleChart.setDescription(recordColumn);
@@ -481,7 +481,7 @@ public class DataVisualizationActivity extends AppCompatActivity {
         ScatterDataSet scatterDataSet = new ScatterDataSet(yVals1, "");
         /* set the shape of drawn scatter point. */
         scatterDataSet.setScatterShape(ScatterChart.ScatterShape.CIRCLE);
-        scatterDataSet.addColor(colors.get(0));
+        scatterDataSet.setColor(colors.get(0));
         ScatterData scatterData = new ScatterData(labels, scatterDataSet);
         scatterChart.setData(scatterData);
         scatterChart.setDescription(recordColumn);
@@ -499,7 +499,13 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
         /* create bar chart dataset */
         BarDataSet barDataSet = new BarDataSet(yVals1, "");
-        barDataSet.addColor(colors.get(0));
+        barDataSet.setColor(colors.get(0));
+        /*BarDataSet barDataSet1 = new BarDataSet(yVals1, "");
+        barDataSet.setColor(colors.get(0));
+        List<IBarDataSet> barDataSetList = new ArrayList<>();
+        barDataSetList.add(barDataSet);
+        barDataSetList.add(barDataSet1);aa
+        BarData barData = new BarData(xVals, barDataSetList);*/
         BarData barData = new BarData(xVals, barDataSet);
         barChart.setData(barData);
         barChart.setDescription(recordColumn);

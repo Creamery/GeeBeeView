@@ -24,6 +24,7 @@ import seebee.geebeeview.model.consultation.PositiveResults;
 import seebee.geebeeview.model.consultation.School;
 import seebee.geebeeview.model.consultation.Symptom;
 import seebee.geebeeview.model.consultation.SymptomFamily;
+import seebee.geebeeview.model.monitoring.IdealValue;
 import seebee.geebeeview.model.monitoring.PatientRecord;
 import seebee.geebeeview.model.monitoring.Record;
 import seebee.geebeeview.model.monitoring.ValueCounter;
@@ -968,6 +969,7 @@ public class DatabaseAdapter {
     public ArrayList<Patient> getPatientsWithCondition(int schoolId, String date, String column, String value) {
         ArrayList<Patient> patients = new ArrayList<Patient>();
         Cursor c;
+
         if(column.contains("motor")) {
             if(column.contains("hold")) {
                 c = getBetterDb.rawQuery("SELECT * "
@@ -1013,4 +1015,43 @@ public class DatabaseAdapter {
 
         return patients;
     }
+
+    /**
+     * Get the ideal value which has an record column of
+     * {@code recordColumn}, gender {@code gender}, age in years {@code age}.
+     * @param recordColumn column of the ideal value to be queried.
+     * @param gender gender of the patient
+     * @param age age in years of the patient
+     * @return the ideal growth value of the patient.
+     */
+    public IdealValue getIdealValue(String recordColumn, int gender, int age){
+        IdealValue idealValue = null;
+
+        Cursor c = getBetterDb.query(IdealValue.TABLE_NAME, null,
+                IdealValue.C_RECORD_COLUMN+" LIKE '"+recordColumn
+                +"' AND "+IdealValue.C_GENDER+" = "+gender
+                +" AND "+IdealValue.C_YEAR+" = "+age, null, null, null, null);
+        if(c.moveToFirst()){
+            //do{
+                idealValue = new IdealValue(c.getInt(c.getColumnIndex(IdealValue.C_GROWTH_ID)),
+                        c.getString(c.getColumnIndex(IdealValue.C_RECORD_COLUMN)),
+                        c.getInt(c.getColumnIndex(IdealValue.C_GENDER)),
+                        c.getInt(c.getColumnIndex(IdealValue.C_YEAR)),
+                        c.getInt(c.getColumnIndex(IdealValue.C_MONTH)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_N3SD)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_N2SD)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_N1SD)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_MEDIAN)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_P1SD)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_P2SD)),
+                        c.getFloat(c.getColumnIndex(IdealValue.C_P3SD)));
+            //}while(c.moveToNext());
+            idealValue.print();
+        }
+        c.close();
+
+        return idealValue;
+    }
+
+
 }

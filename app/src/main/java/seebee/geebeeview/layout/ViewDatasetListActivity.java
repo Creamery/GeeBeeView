@@ -1,6 +1,7 @@
 package seebee.geebeeview.layout;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +31,7 @@ import seebee.geebeeview.database.VolleySingleton;
 import seebee.geebeeview.model.account.Dataset;
 import seebee.geebeeview.model.adapter.DatasetAdapter;
 
-public class ViewDatasetListActivity extends BaseActivity {
+public class ViewDatasetListActivity extends AppCompatActivity {
 
     RecyclerView rvDataset;
     Button btnRefresh;
@@ -41,9 +42,10 @@ public class ViewDatasetListActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getBetterDb = new DatabaseAdapter(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_dataset_list);
+
+        getBetterDb = new DatabaseAdapter(this);
         btnRefresh = (Button) findViewById(R.id.btn_refresh);
         rvDataset = (RecyclerView) findViewById(R.id.rv_dataset);
 
@@ -74,6 +76,7 @@ public class ViewDatasetListActivity extends BaseActivity {
             e.printStackTrace();
         }
         /* get datasetList from database */
+        datasetList.clear();
         datasetList.addAll(getBetterDb.getAllDatasets());
         /* close database after insert */
         getBetterDb.closeDatabase();

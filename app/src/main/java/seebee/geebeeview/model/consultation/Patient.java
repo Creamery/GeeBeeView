@@ -4,10 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import seebee.geebeeview.model.monitoring.AgeCalculator;
 
 /**
  * The Patient class represents a Patient and implements Parcelable
@@ -357,9 +354,10 @@ public class Patient implements Parcelable {
 
     /* added by Stephanie Dy */
     public boolean isGirl() {
-        if(gender == 0)
-            return false;
-        else
-            return true;
+        return gender != 0;
+    }
+
+    public int getAge(String recordDate) {
+        return AgeCalculator.calculateAge(birthday, recordDate);
     }
 }

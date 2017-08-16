@@ -54,6 +54,7 @@
     <string name="view_HPI_list">VIEW CONSULTATION LIST</string>
     <string name="case_impression">Case Impression</string>
     <string name="default_hpi">No HPI Text</string>
+    <string name="btn_back">&lt;</string>
 
     <string-array name="record_column_array">
         <item>BMI</item>
@@ -89,6 +90,5 @@
         <item>Scatter Chart</item>
         <item>Bubble Chart</item>
     </string-array>
-
 
 </resources>

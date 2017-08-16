@@ -1,7 +1,6 @@
 package seebee.geebeeview.layout;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -59,12 +58,13 @@ public class MainActivity extends AppCompatActivity {
                 String username = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
                 int val = -1;
-                if(username != null && password != null) {
+                if(!username.contentEquals("") && !password.contentEquals("")) {
                     User user = new User(val, username, password, val);
                     saveUserToDatabase(user);
                     /* if failed, prompt the user again
                      * if success give message
                      */
+
                 }
             }
         });
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String username = etUsername.getText().toString();
                 String password = etPassword.getText().toString();
-                if(username != null && password != null) {
+                if(!username.contentEquals("") && !password.contentEquals("")) {
                     int val = -1;
                     User user = new User(val, username, password, val);
                     val = checkUserFromDatabase(user);
@@ -115,10 +115,14 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         /* try to insert user to database */
+        int result = 0;
         try{
-            getBetterDb.insertUser(user);
+            result = getBetterDb.insertUser(user);
         } catch (SQLiteConstraintException e){
             Toast.makeText(getBaseContext(), "Unable to insert user.", Toast.LENGTH_SHORT).show();
+        }
+        if(result != 0) {
+            Toast.makeText(getBaseContext(), "Successfully registered user!", Toast.LENGTH_SHORT).show();
         }
         /* close database after insert */
         getBetterDb.closeDatabase();
