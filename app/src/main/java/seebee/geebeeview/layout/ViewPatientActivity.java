@@ -53,6 +53,7 @@ public class ViewPatientActivity extends AppCompatActivity {
     private int patientID;
     private Patient patient;
     private ArrayList<Record> patientRecords;
+    private boolean addIdealValues;
     private IdealValue idealValue;
 
     private RelativeLayout graphLayout;
@@ -142,7 +143,7 @@ public class ViewPatientActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                addIdealValues = false;
             }
         });
         prepareRecordDateSpinner();
@@ -204,7 +205,11 @@ public class ViewPatientActivity extends AppCompatActivity {
         /* dataset containing values from patient, index 0 */
         LineDataSet patientDataset = createLineDataSet(0);
         lineData.addDataSet(patientDataset);
-        if(recordColumn.contains("Height")) {
+        //Log.d(TAG, "addIdealValues (before if): "+addIdealValues);
+        addIdealValues = recordColumn.contains("Height") || recordColumn.contains("Weight") || recordColumn.contains("BMI");
+        //Log.d(TAG, "addIdealValues (after if): "+addIdealValues);
+
+        if(addIdealValues) {
             LineDataSet n3Dataset, n2Dataset, n1Dataset, medianDataset, p1Dataset, p2Dataset, p3Dataset;
             /* dataset containing values from -3SD, index 1 */
             n3Dataset = createLineDataSet(1);
@@ -242,7 +247,7 @@ public class ViewPatientActivity extends AppCompatActivity {
             /* add patient data to patient entry, index 0 */
             lineData.addEntry(new Entry(yVal, i), 0);
             age = patient.getAge(record.getDateCreated());
-            if(recordColumn.contains("Height") && age >= 5 && age <= 19) {
+            if(addIdealValues && age >= 5 && age <= 19) {
                 getIdealValues(age);
                 //Log.v(TAG, recordColumn+"(-3SD): "+idealValue.getN3SD());
                 /* add -3SD from ideal value data to patient entry, index 1 */
@@ -305,6 +310,7 @@ public class ViewPatientActivity extends AppCompatActivity {
             case "Fine Motor (Hold)": x = record.getFineMotorHold();
                 break;
         }
+
         return x;
     }
 
@@ -487,6 +493,7 @@ public class ViewPatientActivity extends AppCompatActivity {
     }
 
     private void getIdealValues(int age) {
+        String column;
         DatabaseAdapter getBetterDb = new DatabaseAdapter(this);
         /* ready database for reading */
         try {
@@ -495,13 +502,20 @@ public class ViewPatientActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         /* get ideal value from database */
-        idealValue = getBetterDb.getIdealValue(Record.C_HEIGHT, patient.getGender(), age);
+        if(recordColumn.contains("Height")) {
+            column = Record.C_HEIGHT;
+        } else if(recordColumn.contains("Weight")) {
+            column = Record.C_WEIGHT;
+        } else {
+            column = "bmi";
+        }
+        idealValue = getBetterDb.getIdealValue(column, patient.getGender(), age);
         /* close database after retrieval */
         getBetterDb.closeDatabase();
     }
 
     private void prepareRecordDateSpinner() {
-        List<String> recordDateList = new ArrayList<String>();
+        List<String> recordDateList = new ArrayList<>();
         for(int i = 0; i < patientRecords.size(); i++) {
             recordDateList.add(patientRecords.get(i).getDateCreated());
         }
