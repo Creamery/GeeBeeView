@@ -1,5 +1,6 @@
 package seebee.geebeeview.layout;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -40,6 +41,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
@@ -50,7 +52,8 @@ import seebee.geebeeview.model.monitoring.Record;
 import seebee.geebeeview.model.monitoring.ValueCounter;
 
 
-public class DataVisualizationActivity extends AppCompatActivity {
+public class DataVisualizationActivity extends AppCompatActivity
+        implements AddFilterDialogFragment.AddFilterDialogListener {
     private static final String TAG = "DataVisualActivity";
 
     ArrayList<String> datasetList, filterList;
@@ -61,18 +64,14 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
     int schoolID;
     String schoolName, date;
-    private ValueCounter valueCounter;
-
     PieChart pieChart;
     BarChart barChart;
     ScatterChart scatterChart;
     BubbleChart bubbleChart;
-
     ArrayList<PatientRecord> records;
-
     String[] xData;
     int[] yData;
-
+    private ValueCounter valueCounter;
     private Spinner spRecordColumn, spChartType;
     private String recordColumn = "BMI";
     private String chartType = "Pie Chart";
@@ -152,6 +151,14 @@ public class DataVisualizationActivity extends AppCompatActivity {
         rvFilter.setAdapter(filterAdapter);
 
         prepareFilterList();
+
+        btnAddFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment addFilterDialog = new AddFilterDialogFragment();
+                addFilterDialog.show(getFragmentManager(), AddFilterDialogFragment.TAG);
+            }
+        });
 
         spRecordColumn.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -448,10 +455,11 @@ public class DataVisualizationActivity extends AppCompatActivity {
     private ArrayList<String> createLabels() {
         ArrayList<String> xVals = new ArrayList<>();
 
-        for(int i = 0; i < yData.length; i++) {
-            xVals.add(xData[i]);
+//        for(int i = 0; i < yData.length; i++) {
+//            xVals.add(xData[i]);
+//        }
 
-        }
+        Collections.addAll(xVals, xData);
 
         return xVals;
     }
@@ -537,5 +545,18 @@ public class DataVisualizationActivity extends AppCompatActivity {
 
         // update pie chart
         pieChart.invalidate();
+    }
+
+    @Override
+    public void onDialogPositiveClick(AddFilterDialogFragment dialog) {
+        String filterEquator, filterValue;
+        filterEquator = dialog.getFilterEquator();
+        filterValue = dialog.getFilterValue();
+        Log.d(AddFilterDialogFragment.TAG, "Filter: age "+filterEquator+" "+filterValue);
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
     }
 }
