@@ -53,7 +53,7 @@ public class ViewPatientActivity extends AppCompatActivity {
     private int patientID;
     private Patient patient;
     private ArrayList<Record> patientRecords;
-    private boolean addIdealValues;
+    //private boolean addIdealValues;
     private IdealValue idealValue;
 
     private RelativeLayout graphLayout;
@@ -135,6 +135,7 @@ public class ViewPatientActivity extends AppCompatActivity {
                 if(lineChart != null) {
                     lineChart.clear();
                     prepareLineChartData();
+                    lineChart.setDescription(recordColumn);
 //                } else {
 //                    radarChart.clear();
 //                    prepareRadarChartData();
@@ -143,7 +144,7 @@ public class ViewPatientActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                addIdealValues = false;
+                //addIdealValues = false;
             }
         });
         prepareRecordDateSpinner();
@@ -205,10 +206,8 @@ public class ViewPatientActivity extends AppCompatActivity {
         /* dataset containing values from patient, index 0 */
         LineDataSet patientDataset = createLineDataSet(0);
         lineData.addDataSet(patientDataset);
-        //Log.d(TAG, "addIdealValues (before if): "+addIdealValues);
-        addIdealValues = recordColumn.contains("Height") || recordColumn.contains("Weight") || recordColumn.contains("BMI");
-        //Log.d(TAG, "addIdealValues (after if): "+addIdealValues);
-
+        /* add ideal values only if record */
+        boolean addIdealValues = recordColumn.contains("Height") || recordColumn.contains("Weight") || recordColumn.contains("BMI");
         if(addIdealValues) {
             LineDataSet n3Dataset, n2Dataset, n1Dataset, medianDataset, p1Dataset, p2Dataset, p3Dataset;
             /* dataset containing values from -3SD, index 1 */
@@ -315,10 +314,10 @@ public class ViewPatientActivity extends AppCompatActivity {
     }
 
     private void setLineChartValueFormatter(LineData lineData) {
-        if(recordColumn.contains("BMI")) {
+        /*if(recordColumn.contains("BMI")) {
             int age = AgeCalculator.calculateAge(patient.getBirthday(), patientRecords.get(patientRecords.size()-1).getDateCreated());
             lineChart.getAxisRight().setValueFormatter(LineChartValueFormatter.getYAxisValueFormatterBMI(patient.isGirl(), age));
-        } else if(recordColumn.contains("Visual Acuity")) {
+        } else*/ if(recordColumn.contains("Visual Acuity")) {
             lineData.setValueFormatter(LineChartValueFormatter.getValueFormatterVisualAcuity());
             lineChart.getAxisRight().setValueFormatter(LineChartValueFormatter.getYAxisValueFormatterVisualAcuity());
         } else if(recordColumn.contains("Color Vision")) {
@@ -352,30 +351,52 @@ public class ViewPatientActivity extends AppCompatActivity {
                 lineWidth = 2f;
                 break;
             case 1: datasetDescription = "-3 SD";
-                lineColor = Color.MAGENTA;
+                lineColor = Color.BLACK;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "Severe Thinness";
+                }
                 break;
             case 2: datasetDescription = "-2 SD";
-                lineColor = Color.CYAN;
+                lineColor = Color.RED;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "Thinness";
+                }
                 break;
             case 3: datasetDescription = "-1 SD";
                 lineColor = Color.YELLOW;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "";
+                    lineColor = Color.TRANSPARENT;
+                }
                 break;
-            case 4: datasetDescription = "Median";
+            case 4: datasetDescription = "Normal";
                 lineColor = Color.GREEN;
                 break;
             case 5: datasetDescription = "1 SD";
                 lineColor = Color.YELLOW;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "Overweight";
+                }
                 break;
             case 6: datasetDescription = "2 SD";
-                lineColor = Color.CYAN;
+                lineColor = Color.RED;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "Obesity";
+                }
                 break;
             case 7: datasetDescription = "3 SD";
-                lineColor = Color.MAGENTA;
+                lineColor = Color.BLACK;
+                if(recordColumn.equals("BMI")) {
+                    datasetDescription = "";
+                    lineColor = Color.TRANSPARENT;
+                }
             break;
         }
+
         LineDataSet lineDataset = new LineDataSet(null, datasetDescription);
         lineDataset.setColor(lineColor);
         lineDataset.setLineWidth(lineWidth);
+        lineDataset.setValueTextSize(12);
 
         if(index == 0) {
             lineDataset.setCircleColor(Color.WHITE);
@@ -388,7 +409,6 @@ public class ViewPatientActivity extends AppCompatActivity {
             lineDataset.setValueTextColor(Color.TRANSPARENT);
         }
 
-
         return lineDataset;
     }
 
@@ -396,6 +416,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         // customize line chart
         chart.setDescription("");
         chart.setNoDataTextDescription("No data for the moment");
+        chart.setDescriptionTextSize(15);
         // enable value highlighting
         chart.setHighlightPerTapEnabled(true);
         // enable touch gestures
@@ -407,9 +428,11 @@ public class ViewPatientActivity extends AppCompatActivity {
         // customize legend
         l.setForm(Legend.LegendForm.LINE);
         l.setTextColor(Color.WHITE);
+        l.setTextSize(12);
         // customize xAxis
         XAxis xl = chart.getXAxis();
-        xl.setTextColor(Color.WHITE);
+        xl.setTextColor(Color.BLACK);
+        xl.setTextSize(12);
         xl.setDrawGridLines(false);
         xl.setAvoidFirstLastClipping(true);
     }

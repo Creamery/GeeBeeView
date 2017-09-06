@@ -42,9 +42,11 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
+import seebee.geebeeview.model.adapter.FilterAdapter;
 import seebee.geebeeview.model.adapter.TextHolderAdapter;
 import seebee.geebeeview.model.consultation.School;
 import seebee.geebeeview.model.monitoring.PatientRecord;
@@ -53,11 +55,12 @@ import seebee.geebeeview.model.monitoring.ValueCounter;
 
 
 public class DataVisualizationActivity extends AppCompatActivity
-        implements AddFilterDialogFragment.AddFilterDialogListener {
+        implements AddFilterDialogFragment.AddFilterDialogListener, FilterAdapter.FilterAdapterListener {
     private static final String TAG = "DataVisualActivity";
 
     ArrayList<String> datasetList, filterList;
-    TextHolderAdapter datasetAdapter, filterAdapter;
+    TextHolderAdapter datasetAdapter;
+    FilterAdapter filterAdapter;
     RecyclerView rvDataset, rvFilter;
     Button btnAddDataset, btnAddFilter, btnViewPatientList, btnViewHPIList, btnBack;
     RelativeLayout graphLayout; /* space where graph will be set on */
@@ -68,7 +71,8 @@ public class DataVisualizationActivity extends AppCompatActivity
     BarChart barChart;
     ScatterChart scatterChart;
     BubbleChart bubbleChart;
-    ArrayList<PatientRecord> records;
+    ArrayList<PatientRecord> allRecords;
+    ArrayList<PatientRecord> filteredRecords;
     String[] xData;
     int[] yData;
     private ValueCounter valueCounter;
@@ -144,13 +148,16 @@ public class DataVisualizationActivity extends AppCompatActivity
 
         /* ready recycler view list for filters */
         filterList = new ArrayList<>();
-        filterAdapter = new TextHolderAdapter(filterList);
+        filterAdapter = new FilterAdapter(filterList, this);
         RecyclerView.LayoutManager fLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvFilter.setLayoutManager(fLayoutManager);
         rvFilter.setItemAnimator(new DefaultItemAnimator());
         rvFilter.setAdapter(filterAdapter);
 
-        prepareFilterList();
+        prepareFilterList(null);
+
+        /* initialized the fitlered list */
+        filteredRecords = new ArrayList<>();
 
         btnAddFilter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,20 +174,7 @@ public class DataVisualizationActivity extends AppCompatActivity
                 Toast.makeText(parent.getContext(),
                         "OnItemSelectedListener : " + recordColumn,
                         Toast.LENGTH_SHORT).show();
-                /* change the contents of the chart */
-                if(pieChart != null || barChart != null) {
-                    prepareChartData();
-                    if(chartType.contentEquals("Pie Chart")) {
-                        pieChart.clear();
-                    } else if(chartType.contentEquals("Bar Chart")) {
-                        barChart.clear();
-                    } else if (chartType.contentEquals("Scatter Chart")) {
-                        scatterChart.clear();
-                    } else {
-                        bubbleChart.clear();
-                    }
-                    addDataSet();
-                }
+                refreshCharts();
             }
 
             @Override
@@ -237,6 +231,23 @@ public class DataVisualizationActivity extends AppCompatActivity
         });
     }
 
+    private void refreshCharts() {
+        /* change the contents of the chart */
+        if(pieChart != null || barChart != null) {
+            prepareChartData();
+            if(chartType.contentEquals("Pie Chart")) {
+                pieChart.clear();
+            } else if(chartType.contentEquals("Bar Chart")) {
+                barChart.clear();
+            } else if (chartType.contentEquals("Scatter Chart")) {
+                scatterChart.clear();
+            } else {
+                bubbleChart.clear();
+            }
+            addDataSet();
+        }
+    }
+
     private void createCharts() {
         graphLayout.setBackgroundColor(Color.LTGRAY);
         createPieChart();
@@ -247,7 +258,7 @@ public class DataVisualizationActivity extends AppCompatActivity
 
     /* change the contents of xData and yData */
     private void prepareChartData() {
-        valueCounter = new ValueCounter(records);
+        valueCounter = new ValueCounter(filteredRecords);
         switch (recordColumn) {
             default:
             case "BMI":
@@ -300,6 +311,7 @@ public class DataVisualizationActivity extends AppCompatActivity
                 // display msg when value selected
                 if(entry == null)
                     return;
+
                 Toast.makeText(DataVisualizationActivity.this,
                         xData[entry.getXIndex()] + " = " + entry.getVal() + " children",
                         Toast.LENGTH_SHORT).show();
@@ -378,9 +390,14 @@ public class DataVisualizationActivity extends AppCompatActivity
 
     }
 
-    private void prepareFilterList() {
+    private void prepareFilterList(String filter) {
         /* specify the filters used for this visualization */
-        filterList.add("N/A");
+        if(filter == null) {
+            filterList.add("N/A");
+        } else {
+            filterList.clear();
+            filterList.add(filter);
+        }
         filterAdapter.notifyDataSetChanged();
     }
 
@@ -400,10 +417,11 @@ public class DataVisualizationActivity extends AppCompatActivity
             e.printStackTrace();
         }
         /* get datasetList from database */
-        records = getBetterDb.getRecordsFromSchool(schoolID, date);
+        allRecords = getBetterDb.getRecordsFromSchool(schoolID, date);
         /* close database after insert */
         getBetterDb.closeDatabase();
-        Log.v(TAG, "number of records = " + records.size());
+        Log.v(TAG, "number of records = " + allRecords.size());
+        filteredRecords.addAll(allRecords);
     }
 
     private ArrayList<Integer> getColorPalette() {
@@ -455,10 +473,6 @@ public class DataVisualizationActivity extends AppCompatActivity
     private ArrayList<String> createLabels() {
         ArrayList<String> xVals = new ArrayList<>();
 
-//        for(int i = 0; i < yData.length; i++) {
-//            xVals.add(xData[i]);
-//        }
-
         Collections.addAll(xVals, xData);
 
         return xVals;
@@ -470,7 +484,6 @@ public class DataVisualizationActivity extends AppCompatActivity
         for(int i = 0; i < yData.length; i++) {
             /* BubbleEntry(xpos, ypos, size)  */
             yVals1.add(new BubbleEntry(i, Integer.valueOf(year), yData[i]));
-
         }
 
         ArrayList<String> labels = createLabels();
@@ -553,10 +566,59 @@ public class DataVisualizationActivity extends AppCompatActivity
         filterEquator = dialog.getFilterEquator();
         filterValue = dialog.getFilterValue();
         Log.d(AddFilterDialogFragment.TAG, "Filter: age "+filterEquator+" "+filterValue);
+        // TODO FILTER RECORDS
+        filterRecords(filterEquator, filterValue);
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
 
+    }
+
+    private void filterRecords(String filterEquator, String filterValue) {
+        // sort list according to age, ascending order
+        Collections.sort(allRecords, new Comparator<PatientRecord>() {
+            @Override
+            public int compare(PatientRecord o1, PatientRecord o2) {
+                if(o1.getAge() > o2.getAge()) {
+                    return 1;
+                } else if(o1.getAge() < o2.getAge()) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        int value = Integer.valueOf(filterValue);
+        int index = getIndexByProperty(value);
+        Log.d(TAG, "Index: "+ index);
+        filteredRecords.clear();
+        if(filterEquator.contentEquals("<")) {
+            filteredRecords.addAll(allRecords.subList(0, index));
+        } else if(filterEquator.contentEquals(">")) {
+            filteredRecords.addAll(allRecords.subList(index, allRecords.size() - 1));
+        } else if(filterEquator.contentEquals("=")) {
+            filteredRecords.addAll(allRecords.subList(index, getIndexByProperty(value+1)));
+        }
+        for(int i = 0; i < filteredRecords.size(); i++) {
+            Log.d(TAG, "Age: "+ filteredRecords.get(i).getAge());
+        }
+        prepareFilterList("age "+filterEquator+" "+value);
+        refreshCharts();
+    }
+    /* Get index of the first record with the specified age value*/
+    private int getIndexByProperty(int value) {
+        for(int i = 0; i < allRecords.size(); i++) {
+            if(allRecords.get(i).getAge() == value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public void removeFilters() {
+        filteredRecords.clear();
+        filteredRecords.addAll(allRecords);
+        refreshCharts();
     }
 }

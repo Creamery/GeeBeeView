@@ -58,6 +58,8 @@
 
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="na">N/A</string>
+    <string name="close">X</string>
 
     <string-array name="record_column_array">
         <item>BMI</item>

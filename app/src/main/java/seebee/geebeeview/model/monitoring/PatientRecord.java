@@ -1,14 +1,11 @@
 package seebee.geebeeview.model.monitoring;
 
-import android.util.Log;
-
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-
 /**
- * Created by Joy on 7/6/2017.
+ * The PatientRecord class contains the record data of a patient including their age and gender.
+ * This class was created for the sole convenience
+ * of having the record with the age and gender of the patient.
+ *
+ * @author Stephanie Dy
  */
 
 public class PatientRecord  {
@@ -21,6 +18,8 @@ public class PatientRecord  {
     private int gender;
 
     private int age;
+
+    //private float bmi;
 
     private Record record;
 
