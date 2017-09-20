@@ -427,8 +427,8 @@ public class ViewPatientActivity extends AppCompatActivity {
         Legend l = chart.getLegend();
         // customize legend
         l.setForm(Legend.LegendForm.LINE);
-        l.setTextColor(Color.WHITE);
-        l.setTextSize(12);
+        l.setTextColor(Color.BLACK);
+        l.setTextSize(20);
         // customize xAxis
         XAxis xl = chart.getXAxis();
         xl.setTextColor(Color.BLACK);

@@ -592,12 +592,13 @@ public class DataVisualizationActivity extends AppCompatActivity
         int index = getIndexByProperty(value);
         Log.d(TAG, "Index: "+ index);
         filteredRecords.clear();
-        if(filterEquator.contentEquals("<")) {
-            filteredRecords.addAll(allRecords.subList(0, index));
-        } else if(filterEquator.contentEquals(">")) {
-            filteredRecords.addAll(allRecords.subList(index, allRecords.size() - 1));
-        } else if(filterEquator.contentEquals("=")) {
+        if(filterEquator.contains("=")) {
             filteredRecords.addAll(allRecords.subList(index, getIndexByProperty(value+1)));
+        }
+        if(filterEquator.contains("<")) {
+            filteredRecords.addAll(allRecords.subList(0, index));
+        } else if(filterEquator.contains(">")) {
+            filteredRecords.addAll(allRecords.subList(index, allRecords.size() - 1));
         }
         for(int i = 0; i < filteredRecords.size(); i++) {
             Log.d(TAG, "Age: "+ filteredRecords.get(i).getAge());
