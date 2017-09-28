@@ -39,7 +39,7 @@ import seebee.geebeeview.model.monitoring.Record;
  */
 
 public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetViewHolder> {
-
+    private final String TAG = "DatasetAdapter";
     private ArrayList<Dataset> datasetList;
     private Context context;
     private DatabaseAdapter getbetterDb ;
@@ -76,7 +76,9 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
         final Dataset dataset = datasetList.get(position);
         holder.tvSchoolName.setText(dataset.getSchoolName());
         holder.tvDate.setText(dataset.getDate());
+        //Log.d(TAG, "It should be View!");
         if(dataset.getStatus() == 1) {
+            //Log.d(TAG, "It should be View!");
             holder.btnStatus.setText(R.string.view);
             holder.btnStatus.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -94,11 +96,24 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
             holder.btnStatus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    downloadDataset(dataset);
-                    getbetterDb.updateDatasetStatus(dataset);
-                    holder.btnStatus.setText(R.string.view);
+                    if(dataset.getStatus() == 0){
+                        downloadDataset(dataset);
+                        getbetterDb.updateDatasetStatus(dataset);
+                        holder.btnStatus.setText(R.string.view);
+                        dataset.setStatusTo1();
+                    }
+                    else if(dataset.getStatus() == 1){
+                        // move to data visualization activity
+                        Intent intent = new Intent(context, DataVisualizationActivity.class);
+                        intent.putExtra(School.C_SCHOOLNAME, dataset.getSchoolName());
+                        intent.putExtra(School.C_SCHOOL_ID, dataset.getSchoolID());
+                        intent.putExtra(Record.C_DATE_CREATED, dataset.getDate());
+                        context.startActivity(intent);
+                    }
+
 
                 }
+
             });
         }
     }
@@ -107,6 +122,17 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
     public int getItemCount() {
         return datasetList.size();
     }
+
+//    public void refreshDataset(ArrayList<Dataset> newDatasets){
+//        if (datasetList != null) {
+//            datasetList.clear();
+//            datasetList.addAll(newDatasets);
+//        }
+//        else {
+//            datasetList = newDatasets;
+//        }
+//        notifyDataSetChanged();
+//    }
 
 
     private void downloadDataset(final Dataset dataset){
@@ -119,6 +145,7 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
                         JSONObject jsonRecord;
                         Record record;
                         Patient patient;
+                        School school;
                         try {
                             JSONArray jsonRecordsArray = new JSONArray(response);
                             for(int i=1;i<jsonRecordsArray.length();i++){
@@ -135,8 +162,10 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
                                 patient = new Patient(jsonRecord.getInt(Patient.C_PATIENT_ID),jsonRecord.getString(Patient.C_FIRST_NAME),jsonRecord.getString(Patient.C_LAST_NAME),
                                         jsonRecord.getString(Patient.C_BIRTHDAY), jsonRecord.getInt(Patient.C_GENDER), jsonRecord.getInt(Patient.C_SCHOOL_ID),jsonRecord.getInt(Patient.C_HANDEDNESS),
                                         jsonRecord.getString(Patient.C_REMARKS_STRING),jsonRecord.getString(Patient.C_REMARKS_AUDIO).getBytes());
+                                school = new School(jsonRecord.getInt(School.C_SCHOOL_ID),jsonRecord.getString(School.C_SCHOOLNAME), jsonRecord.getString(School.C_MUNICIPALITY));
                                 getbetterDb.updateRecord(record);
                                 getbetterDb.updatePatient(patient);
+                                getbetterDb.updateSchools(school);
 
                             }
 
@@ -172,5 +201,8 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
         VolleySingleton.getInstance(context).addToRequestQueue(stringRequest);
 
 
+    }
+    public void clearDatasetList(){
+        datasetList.clear();
     }
 }

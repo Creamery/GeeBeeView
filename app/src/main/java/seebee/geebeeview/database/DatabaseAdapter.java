@@ -707,26 +707,22 @@ public class DatabaseAdapter {
      */
     public ArrayList<Dataset> getAllDatasets() {
         ArrayList<Dataset> datasetList = new ArrayList<>();
-        /* SELECT DISTINCT s.name, r.date_created
-         * FROM tbl_school AS s, tbl_record AS r, tbl_patient AS p
-         * WHERE s.schoolID = p.schoolID AND r.patientID = p.patientID */
-
-        /*Cursor c = getBetterDb.rawQuery("SELECT DISTINCT s."+School.C_SCHOOL_ID+", s."+School.C_SCHOOLNAME+" , r."+Record.C_DATE_CREATED
-                +" FROM "+School.TABLE_NAME+" AS s, "+Record.TABLE_NAME+" AS r, "+Patient.TABLE_NAME+" AS p "
-                +" WHERE s."+School.C_SCHOOL_ID+" = p."+Patient.C_SCHOOL_ID
-                +" AND r."+Record.C_PATIENT_ID+" = p."+Patient.C_PATIENT_ID, null);*/
-        Cursor c = getBetterDb.rawQuery("SELECT * "
-                +" FROM "+Dataset.TABLE_NAME+" AS d , "+School.TABLE_NAME+" AS s "
-                +" WHERE s."+School.C_SCHOOL_ID+" = d."+Dataset.C_SCHOOL_ID, null);
+        try {
+            openDatabaseForRead();
+        }catch (SQLException e){
+            Log.e(TAG," ERROR OPEN DB");
+            e.printStackTrace();
+        }
+        Cursor c = getBetterDb.rawQuery("SELECT * FROM tbl_dataset;", null);
 
         if(c.moveToFirst()) {
             Log.d(TAG, "tbl_dataset is not empty");
             do {
-                Dataset dataset = new Dataset(c.getInt(c.getColumnIndex(Dataset.C_SCHOOL_ID)),
-                        c.getString(c.getColumnIndex(School.C_SCHOOLNAME)),
+                Dataset dataset = new Dataset(c.getInt(c.getColumnIndex(Dataset.C_ID)),
+                        c.getInt(c.getColumnIndex(Dataset.C_SCHOOLID)),
+                        getSchoolName(c.getInt(c.getColumnIndex(Dataset.C_SCHOOLID))),
                         c.getString(c.getColumnIndex(Dataset.C_DATE_CREATED)),
                         c.getInt(c.getColumnIndex(Dataset.C_STATUS)));
-
                 dataset.printDataset();
                 datasetList.add(dataset);
             } while (c.moveToNext());
@@ -831,44 +827,21 @@ public class DatabaseAdapter {
         return HPIs;
     }
 
-
-
     public boolean updateDatasetList(Dataset dataset){
-        String sql = "INSERT OR REPLACE INTO datasets (school_id, name,  date_created, status) " +
-                     "VALUES(? ,? ,?," +
-                     "(SELECT status FROM datasets WHERE school_id = ? AND name LIKE ?" +
-                "  AND date_created LIKE ? )); ";
-//        ContentValues values = new ContentValues();
-//        values.put("school_id", dataset.getSchoolID());
-//        values.put("name");
-
-
-
-
-        try {
+        ContentValues initialValues = new ContentValues();
+        initialValues.put("dataset_id", dataset.getId());
+        initialValues.put("status", 0); // the execution is different if _id is 2
+        initialValues.put("school_id", dataset.getSchoolID());
+        initialValues.put("date_created", dataset.getDate());
+        try{
             openDatabaseForWrite();
-        } catch (SQLException e) {
+        }
+        catch(SQLException e){
             e.printStackTrace();
         }
-//        try{
-//            getBetterDb.execSQL(sql, new String[]{ Integer.toString(dataset.getSchoolID()),  dataset.getSchoolName(), dataset.getDate().replaceAll("'",""),
-//                    Integer.toString(dataset.getSchoolID()),  dataset.getSchoolName(), dataset.getDate().replaceAll("'","") });
-//        }catch (android.database.SQLException e){
-//            Log.e("DATASET: ", "Replace or insert failed!");
-//            e.printStackTrace();;
-//            return false;
-//        }
-
-        ContentValues initialValues = new ContentValues();
-        //initialValues.put("status", 1); // the execution is different if _id is 2
-        initialValues.put("school_id", dataset.getSchoolID());
-        initialValues.put("name", dataset.getSchoolName());
-        initialValues.put("date_created", dataset.getDate());
-
-
-        int id = (int) getBetterDb.insertWithOnConflict("datasets", null, initialValues, SQLiteDatabase.CONFLICT_REPLACE);
-
-
+        int id = (int) getBetterDb.insertWithOnConflict("tbl_dataset", null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+        //Log.d(TAG, "Number of Dataset:" + getAllDatasets().size());
+        closeDatabase();
         return true;
     }
 
@@ -877,7 +850,6 @@ public class DatabaseAdapter {
     public void updateRecord(Record record){
         ContentValues values = new ContentValues();
         int row;
-
         values.put(Record.C_PATIENT_ID, record.getPatient_id());
         values.put(Record.C_DATE_CREATED, record.getDateCreated());
         values.put(Record.C_HEIGHT, record.getHeight());
@@ -895,8 +867,6 @@ public class DatabaseAdapter {
         values.put(Record.C_PATIENT_PICTURE, record.getPatientPicture());
         values.put(Record.C_REMARKS_STRING, record.getRemarksString());
         values.put(Record.C_REMARKS_AUDIO, record.getRemarksAudio());
-
-
         try {
             openDatabaseForWrite();
         } catch (SQLException e) {
@@ -905,49 +875,21 @@ public class DatabaseAdapter {
         row = (int) getBetterDb.replaceOrThrow(Record.TABLE_NAME, null, values);
         //Log.d(TAG, "replaceRecord Result: " + row);
         closeDatabase();
-
-
-
     }
     public void updateDatasetStatus(Dataset dataset){
-//        int row;
-//        String sql = "UPDATE datasets SET status = 1 WHERE school_id = ? AND date_created LIKE  ?;";
         try {
             openDatabaseForWrite();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        /*ContentValues values = new ContentValues();
-//        values.put("school_id", Integer.toString(dataset.getSchoolID()));
-//        values.put("school_id", dataset.getDate().replaceAll("'",""));
-        values.put("status", 1);
-
-
-        try{
-            //row = (int) getBetterDb.update("datasets", values, "school_id="+dataset.getSchoolID() + " AND " + "date_created LIKE "+dataset.getDate().replaceAll("'",""), null);
-
-             getBetterDb.execSQL(sql, new String[]{ Integer.toString(dataset.getSchoolID()), dataset.getDate()});
-//            Log.d(TAG, "Update dataset status: " + row);
-        }catch (android.database.SQLException e){
-            Log.e("DATASET: ", "Replace or insert failed!");
-            e.printStackTrace();;
-        }*/
-        //closeDatabase();
         ContentValues initialValues = new ContentValues();
         initialValues.put("status", 1); // the execution is different if _id is 2
-
-
-        int id = (int) getBetterDb.insertWithOnConflict("datasets", null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
-        if (id == -1) {
-            getBetterDb.update("datasets", initialValues, "school_id = ? AND date_created LIKE ? AND name LIKE ?", new String[] {Integer.toString(dataset.getSchoolID()), dataset.getDate(), dataset.getSchoolName()});  // number 1 is the _id here, update to variable for your code
-        }
-
+        getBetterDb.update("tbl_dataset", initialValues, "dataset_id = ?", new String[] {Integer.toString(dataset.getId())});  // number 1 is the _id here, update to variable for your code
     }
 
     public void updatePatient(Patient patient){
         ContentValues values = new ContentValues();
         int row;
-
         values.put(Patient.C_FIRST_NAME, patient.getFirstName());
         values.put(Patient.C_LAST_NAME, patient.getLastName());
         values.put(Patient.C_BIRTHDAY, patient.getBirthday());
@@ -961,15 +903,72 @@ public class DatabaseAdapter {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         row = (int) getBetterDb.replaceOrThrow(Patient.TABLE_NAME, null, values);
         Log.d(TAG, "replacePatient Result: " + row);
+        closeDatabase();
+    }
+    public void updateSchools(School school){
+        ContentValues values = new ContentValues();
+        values.put(School.C_SCHOOL_ID, school.getSchoolId());
+        values.put(School.C_MUNICIPALITY, school.getMunicipality());
+        values.put(School.C_SCHOOLNAME, school.getSchoolName());
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        int id = (int) getBetterDb.insertWithOnConflict("tbl_school", null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
+    /*public void updateMunicipalities(Municipality municipality){
+        ContentValues values = new ContentValues();
+        values.put(Municipality.C_MUNICIPALITY_ID, municipality);
+        values.put(School.C_SCHOOL_ID, school.getSchoolId());
+        values.put(School.C_MUNICIPALITY, school.getMunicipality());
+        values.put(School.C_SCHOOLNAME, school.getSchoolName());
+        try {
+            openDatabaseForWrite();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        int id = (int) getBetterDb.insertWithOnConflict("tbl_school", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+    }*/
+
+    public int getSchoolCount(){
+        int count = 0;
+        try {
+            openDatabaseForRead();
+        }catch(SQLException e){
+            e.printStackTrace();
+            Log.e(TAG, "Error Opening Database! D:");
+        }
+        Cursor c = getBetterDb.rawQuery("SELECT COUNT(*) FROM   tbl_school AS schoolCount", null);
+        if(c.moveToFirst()){
+            do{
+                count = c.getInt(0);
+            }while(c.moveToNext());
+        }
+        c.close();
+        return count;
+    }
+
+    public String getSchoolName(int schoolID){
+        String schoolName = "";
+        try {
+            openDatabaseForRead();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Cursor c = getBetterDb.rawQuery("SELECT name FROM tbl_school WHERE school_id = ? ", new String[] {Integer.toString(schoolID)});
+        if(c.moveToFirst())
+            schoolName = c.getString(0);
+        closeDatabase();
+        return schoolName;
+    }
     public ArrayList<Patient> getPatientsWithCondition(int schoolId, String date, String column, String value) {
         ArrayList<Patient> patients = new ArrayList<Patient>();
         Cursor c;
-
         if(column.contains("motor")) {
             if(column.contains("hold")) {
                 c = getBetterDb.rawQuery("SELECT * "
@@ -997,7 +996,6 @@ public class DatabaseAdapter {
                     +" AND r."+column+" LIKE '"+value+"' "
                     +" GROUP BY p.patient_id; ", null);
         }
-
         if(c.moveToFirst()){
             do{
                 patients.add(new Patient(c.getInt(c.getColumnIndex(Patient.C_PATIENT_ID)),

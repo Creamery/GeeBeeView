@@ -36,4 +36,24 @@ public class Municipality {
      * the municipality belongs in.
      */
     public final static String C_REGION_ID = "region";
+
+    public static String getTableName() {
+        return TABLE_NAME;
+    }
+
+    public static String getcMunicipalityId() {
+        return C_MUNICIPALITY_ID;
+    }
+
+    public static String getcName() {
+        return C_NAME;
+    }
+
+    public static String getcProvince() {
+        return C_PROVINCE;
+    }
+
+    public static String getcRegionId() {
+        return C_REGION_ID;
+    }
 }

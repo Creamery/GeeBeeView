@@ -30,9 +30,10 @@ import seebee.geebeeview.database.DatabaseAdapter;
 import seebee.geebeeview.database.VolleySingleton;
 import seebee.geebeeview.model.account.Dataset;
 import seebee.geebeeview.model.adapter.DatasetAdapter;
+import seebee.geebeeview.model.consultation.School;
 
 public class ViewDatasetListActivity extends AppCompatActivity {
-
+    private final static String TAG =  "ViewDatasetListActivity";
     RecyclerView rvDataset;
     Button btnRefresh;
     ArrayList<Dataset> datasetList = new ArrayList<>();
@@ -59,7 +60,7 @@ public class ViewDatasetListActivity extends AppCompatActivity {
         btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateDatasets();
+                prepareDatasetList();
             }
         });
 
@@ -76,15 +77,28 @@ public class ViewDatasetListActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         /* get datasetList from database */
+        //datasetAdapter.clearDatasetList();
         datasetList.clear();
-        datasetList.addAll(getBetterDb.getAllDatasets());
+        updateDatasets();
+        //datasetList.addAll(getBetterDb.getAllDatasets());
+        for(Dataset dataset:getBetterDb.getAllDatasets()) {
+            datasetList.add(dataset);
+
+            datasetAdapter.notifyDataSetChanged();
+        }
+        //Log.d("NUMBER OF DATA PLS", "WTF" + Integer.toString(getBetterDb.getAllDatasets().size()));
         /* close database after insert */
         getBetterDb.closeDatabase();
-        Log.v("ViewDatasetListActivity", "number of datasets = " + datasetList.size());
+
+        //Log.v("ViewDatasetListActivity", "number of datasets = " + datasetList.size());
         datasetAdapter.notifyDataSetChanged();
     }
 
     private void updateDatasets(){
+        //Check Preliminary Data (Province, municiplalities, schools)
+        updatePreliminary();
+
+
         ArrayList<Dataset> datasets;
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_SAVE_NAME,
@@ -95,11 +109,13 @@ public class ViewDatasetListActivity extends AppCompatActivity {
                         Dataset dataset;
                         try {
                             JSONArray jsonDatasets = new JSONArray(response);
-                            for(int i=1;i<jsonDatasets.length();i++){
-                                jsonDataset = jsonDatasets.getJSONObject(i);
-                                dataset = new Dataset(jsonDataset.getInt("school_id"), jsonDataset.getString("name"), jsonDataset.getString("date_created"), 0);
-                                getBetterDb.updateDatasetList(dataset);
+//                            datasetList.clear();
+//                            datasetAdapter.clearDatasetList();
 
+                            for(int i=0;i<jsonDatasets.length();i++){
+                                jsonDataset = jsonDatasets.getJSONObject(i);
+                                dataset = new Dataset(jsonDataset.getInt("dataset_id"), jsonDataset.getInt("school_id"), getBetterDb.getSchoolName(jsonDataset.getInt("school_id")),jsonDataset.getString("date_created"), 0);
+                                getBetterDb.updateDatasetList(dataset);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -126,7 +142,130 @@ public class ViewDatasetListActivity extends AppCompatActivity {
             }
         };
         VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
-        prepareDatasetList();
+        //prepareDatasetList();
     }
+    private void updatePreliminary(){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_SAVE_NAME,
+                new Response.Listener<String>() {
+                    int remoteCount =  0;
+                    int localCount =  0;
+                    JSONObject countObj;
+                    //int remoteCounts[] =  new int[3];
+                    //int localCounts[] =  new int[3];
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray array = new JSONArray(response);
+                            countObj = array.getJSONObject(0);
+                            remoteCount = countObj.getInt("schoolCount");
+
+                            //remoteCounts[0] = obj.getInt("schoolCount");
+                            //remoteCounts[1] = obj.getInt("municipalityCount");
+                            //remoteCounts[2] = obj.getInt("provinceCount");
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "school count json error parse");
+                        }
+                        localCount = getBetterDb.getSchoolCount();
+                        if(localCount != remoteCount){
+                            updateSchoolTable(localCount);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Connection Error!",Toast.LENGTH_SHORT).show();
+                        Log.e("RESOPNSE ERROR:", "IDK WHY THO");
+                        error.printStackTrace();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("request", "query-preliminary");
+                return params;
+            }
+        };
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+    private void updateSchoolTable(final int lastSchoolIndex){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_SAVE_NAME,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject jsonSchool;
+                        School school;
+                        try{
+                            JSONArray jsonSchools = new JSONArray(response);
+                            for (int i = 0; i < jsonSchools.length(); i++) {
+                                jsonSchool = jsonSchools.getJSONObject(i);
+                                school = new School(jsonSchool.getInt("school_id"), jsonSchool.getString("name"), jsonSchool.getString("municipality"));
+                                getBetterDb.updateSchools(school);
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                            Log.e(TAG, "query-school JSON Parse Error");
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Connection Error!",Toast.LENGTH_SHORT).show();
+                        Log.e("RESOPNSE ERROR:", "IDK WHY THO");
+                        error.printStackTrace();
+                }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("request", "query-school");
+                params.put("school_id", Integer.toString(lastSchoolIndex));
+                return params;
+            }
+        };
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+    /*private void updateMunicipalityTable(int lastMunicipalityIndex){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_SAVE_NAME,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject jsonMunicipality;
+                        School municipality;
+                        try{
+                            JSONArray jsonSchools = new JSONArray(response);
+                            for (int i = 0; i < jsonSchools.length(); i++) {
+                                jsonMunicipality = jsonSchools.getJSONObject(i);
+                                municipality = new School(jsonMunicipality.getInt("school_id"), jsonMunicipality.getString("name"), jsonMunicipality.getString("municipality"));
+                                getBetterDb.updateMunicipality(municiplaity);
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                            Log.e(TAG, "query-school JSON Parse Error");
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Connection Error!",Toast.LENGTH_SHORT).show();
+                        Log.e("RESOPNSE ERROR:", "IDK WHY THO");
+                        error.printStackTrace();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("request", "query-school");
+                params.put("school_id", Integer.toString(lastMunicipalityIndex));
+                return params;
+            }
+        };
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }*/
+
+
 
 }
