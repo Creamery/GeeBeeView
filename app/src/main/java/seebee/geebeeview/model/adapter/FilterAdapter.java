@@ -50,11 +50,11 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterAdap
         holder.tvFilterClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filterList.remove(position);
+                mListener.removeFilters(filterList.get(position));
+                //filterList.remove(position);
                 if(filterList.size() == 0) {
                     filterList.add("N/A");
                 }
-                mListener.removeFilters();
                 notifyDataSetChanged();
             }
         });
@@ -66,7 +66,7 @@ public class FilterAdapter extends RecyclerView.Adapter<FilterAdapter.FilterAdap
     }
 
     public interface FilterAdapterListener {
-        void removeFilters();
+        void removeFilters(String filter);
     }
 
     public class FilterAdapterViewHolder extends RecyclerView.ViewHolder {

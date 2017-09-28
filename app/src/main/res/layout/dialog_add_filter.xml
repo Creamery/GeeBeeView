@@ -2,21 +2,42 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-    <TextView
-        style="@style/DefaultText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/age"/>
-    <Spinner
-        android:id="@+id/sp_add_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/age_filter_array">
-    </Spinner>
-    <EditText
-        android:id="@+id/et_filter"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal" />
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/DefaultText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/age"/>
+        <Spinner
+            android:id="@+id/sp_age_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/age_filter_array">
+        </Spinner>
+        <EditText
+            android:id="@+id/et_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/DefaultText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gender"/>
+        <Spinner
+            android:id="@+id/sp_gender_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/gender_filter_array">
+        </Spinner>
+    </LinearLayout>
+
 </LinearLayout>

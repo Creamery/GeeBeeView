@@ -103,4 +103,11 @@
         <item>&gt;</item>
         <item>&gt;=</item>
     </string-array>
+
+    <string-array name="gender_filter_array">
+        <item>N/A</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
 </resources>

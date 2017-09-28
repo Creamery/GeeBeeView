@@ -26,9 +26,9 @@ public class AddFilterDialogFragment extends DialogFragment {
 
     public static final String TAG = "AddFilterDialog";
     AddFilterDialogListener mListener;
-    private Spinner spAddFilter;
+    private Spinner spAgeFilter, spGenderFilter;
     private EditText etFilter;
-    private String filterValue, filterEquator;
+    private String ageValue, ageEquator, genderValue;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -44,10 +44,10 @@ public class AddFilterDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(etFilter.getText().toString().isEmpty()) {
+                        if(etFilter.getText().toString().isEmpty() && genderValue.contains("N/A")) {
                             etFilter.setError("This field is required!");
                         } else {
-                            filterValue = etFilter.getText().toString();
+                            ageValue = etFilter.getText().toString();
                             // Send the positive button event back to the host activity
                             mListener.onDialogPositiveClick(AddFilterDialogFragment.this);
                         }
@@ -60,18 +60,32 @@ public class AddFilterDialogFragment extends DialogFragment {
                     }
                 });
         // connect layout content with class
-        spAddFilter = (Spinner) view.findViewById(R.id.sp_add_filter);
+        spAgeFilter = (Spinner) view.findViewById(R.id.sp_age_filter);
+        spGenderFilter = (Spinner) view.findViewById(R.id.sp_gender_filter);
+
         etFilter = (EditText) view.findViewById(R.id.et_filter);
         // set filterEquator to what is pointed by spinner
-        spAddFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spAgeFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                filterEquator = getResources().getStringArray(R.array.age_filter_array)[position];
+                ageEquator = getResources().getStringArray(R.array.age_filter_array)[position];
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                filterEquator = getResources().getStringArray(R.array.age_filter_array)[0];
+                ageEquator = getResources().getStringArray(R.array.age_filter_array)[0];
+            }
+        });
+
+        spGenderFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                genderValue = getResources().getStringArray(R.array.gender_filter_array)[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                genderValue = getResources().getStringArray(R.array.gender_filter_array)[0];
             }
         });
 
@@ -92,12 +106,16 @@ public class AddFilterDialogFragment extends DialogFragment {
         }
     }
 
-    public String getFilterValue() {
-        return filterValue;
+    public String getAgeValue() {
+        return ageValue;
     }
 
-    public String getFilterEquator() {
-        return filterEquator;
+    public String getAgeEquator() {
+        return ageEquator;
+    }
+
+    public String getGenderValue() {
+        return genderValue;
     }
 
     // interface which is inherited when this dialog is implemented

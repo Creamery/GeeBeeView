@@ -155,7 +155,6 @@ public class DataVisualizationActivity extends AppCompatActivity
         rvFilter.setAdapter(filterAdapter);
 
         prepareFilterList(null);
-
         /* initialized the fitlered list */
         filteredRecords = new ArrayList<>();
 
@@ -395,7 +394,8 @@ public class DataVisualizationActivity extends AppCompatActivity
         if(filter == null) {
             filterList.add("N/A");
         } else {
-            filterList.clear();
+            filterList.remove("N/A");
+            //filterList.clear();
             filterList.add(filter);
         }
         filterAdapter.notifyDataSetChanged();
@@ -562,12 +562,32 @@ public class DataVisualizationActivity extends AppCompatActivity
 
     @Override
     public void onDialogPositiveClick(AddFilterDialogFragment dialog) {
-        String filterEquator, filterValue;
-        filterEquator = dialog.getFilterEquator();
-        filterValue = dialog.getFilterValue();
-        Log.d(AddFilterDialogFragment.TAG, "Filter: age "+filterEquator+" "+filterValue);
-        // TODO FILTER RECORDS
-        filterRecords(filterEquator, filterValue);
+        String ageEquator, ageValue, genderValue;
+        ageEquator = dialog.getAgeEquator();
+        ageValue = dialog.getAgeValue();
+        genderValue = dialog.getGenderValue();
+
+        Log.d(AddFilterDialogFragment.TAG, "Filter: age "+ageEquator+" "+ageValue);
+        /* filter records*/
+        if(!ageValue.contentEquals("")) {
+            for(int i = 0; i < filterList.size(); i++) {
+                if(filterList.get(i).contains("age")){
+                    removeFilters(filterList.get(i));
+                }
+            }
+            filterRecordsByAge(ageEquator, ageValue);
+            prepareFilterList("age "+ageEquator+" "+ageValue);
+        }
+        if(!genderValue.contentEquals("N/A")) {
+            for(int i = 0; i < filterList.size(); i++) {
+                if(filterList.get(i).contains("gender")){
+                    removeFilters(filterList.get(i));
+                }
+            }
+            filterRecordsByGender(genderValue);
+            prepareFilterList("gender = "+genderValue);
+        }
+        refreshCharts();
     }
 
     @Override
@@ -575,9 +595,29 @@ public class DataVisualizationActivity extends AppCompatActivity
 
     }
 
-    private void filterRecords(String filterEquator, String filterValue) {
+    private void filterRecordsByGender(String genderValue) {
+        Log.d(TAG, "Gender Filter: "+genderValue);
+        for(int i = 0; i < filteredRecords.size(); i ++) {
+            if(genderValue.contentEquals("Female")) {
+                if(!filteredRecords.get(i).getGender()) {
+                    filteredRecords.remove(i);
+                    i--;
+                }
+            } else if(genderValue.contentEquals("Male")) {
+                if(filteredRecords.get(i).getGender()){
+                    filteredRecords.remove(i);
+                    i--;
+                }
+            }
+        }
+//        for(int i = 0; i < filteredRecords.size(); i++) {
+//            Log.d(TAG, "Filtered Gender = "+filteredRecords.get(i).getGender());
+//        }
+    }
+
+    private void filterRecordsByAge(String filterEquator, String filterValue) {
         // sort list according to age, ascending order
-        Collections.sort(allRecords, new Comparator<PatientRecord>() {
+        Collections.sort(filteredRecords, new Comparator<PatientRecord>() {
             @Override
             public int compare(PatientRecord o1, PatientRecord o2) {
                 if(o1.getAge() > o2.getAge()) {
@@ -591,25 +631,36 @@ public class DataVisualizationActivity extends AppCompatActivity
         int value = Integer.valueOf(filterValue);
         int index = getIndexByProperty(value);
         Log.d(TAG, "Index: "+ index);
-        filteredRecords.clear();
-        if(filterEquator.contains("=")) {
-            filteredRecords.addAll(allRecords.subList(index, getIndexByProperty(value+1)));
+        ArrayList<PatientRecord> tempArray = new ArrayList<>();
+        if(index != -1) {
+            if(filterEquator.contains("=")) {
+                int endIndex = getIndexByProperty(value+1);
+                if(endIndex == -1) {
+                    tempArray.addAll(filteredRecords.subList(index, filteredRecords.size()-1));
+                } else {
+                    tempArray.addAll(filteredRecords.subList(index, endIndex));
+                }
+            }
+            if(filterEquator.contains("<")) {
+                tempArray.addAll(filteredRecords.subList(0, index));
+            } else if(filterEquator.contains(">")) {
+                tempArray.addAll(filteredRecords.subList(index, filteredRecords.size() - 1));
+            }
+            filteredRecords.clear();
+            filteredRecords.addAll(tempArray);
+//            for(int i = 0; i < filteredRecords.size(); i++) {
+//                Log.d(TAG, "Age: "+ filteredRecords.get(i).getAge());
+//            }
+        } else {
+            Toast.makeText(this, "There is no one with that age!", Toast.LENGTH_SHORT).show();
         }
-        if(filterEquator.contains("<")) {
-            filteredRecords.addAll(allRecords.subList(0, index));
-        } else if(filterEquator.contains(">")) {
-            filteredRecords.addAll(allRecords.subList(index, allRecords.size() - 1));
-        }
-        for(int i = 0; i < filteredRecords.size(); i++) {
-            Log.d(TAG, "Age: "+ filteredRecords.get(i).getAge());
-        }
-        prepareFilterList("age "+filterEquator+" "+value);
-        refreshCharts();
+//        prepareFilterList("age "+filterEquator+" "+value);
+//        refreshCharts();
     }
     /* Get index of the first record with the specified age value*/
     private int getIndexByProperty(int value) {
-        for(int i = 0; i < allRecords.size(); i++) {
-            if(allRecords.get(i).getAge() == value) {
+        for(int i = 0; i < filteredRecords.size(); i++) {
+            if(filteredRecords.get(i).getAge() == value) {
                 return i;
             }
         }
@@ -617,9 +668,35 @@ public class DataVisualizationActivity extends AppCompatActivity
     }
 
     @Override
-    public void removeFilters() {
+    public void removeFilters(String filter) {
         filteredRecords.clear();
         filteredRecords.addAll(allRecords);
+        Log.d(TAG, "Removed Filter: "+filter);
+        filterList.remove(filter);
+
+        if(filterList.size() > 0) {
+            String filterLeft = filterList.get(0);
+            Log.d(TAG, "Filter Left: "+filterLeft);
+            if(filterLeft.contains("age")) {
+                filterRecordsByAge(String.valueOf(filterLeft.charAt(4)), filterLeft.substring(6));
+            } else if(filterLeft.contains("gender")) {
+                filterRecordsByGender(filterLeft.substring(9));
+            }
+//        } else {
+//            Log.d(TAG, "Removed All filters");
+////            filteredRecords.clear();
+////            filteredRecords.addAll(allRecords);
+//
+        }
+        Log.d(TAG, "Displayed records: "+filteredRecords.size());
+//        if(filter.contains("age")) {
+//            if(filterList.get(0).contains("gender")) {
+//                filterRecordsByGender(filterList.get(0).substring(7));
+//            }
+//        } else if(filter.contains("gender")) {
+//            filterRecordsByAge(String.valueOf(filter.charAt(4)), filter.substring(6));
+//        }
+
         refreshCharts();
     }
 }
