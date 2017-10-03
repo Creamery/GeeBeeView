@@ -121,7 +121,7 @@ public class AddFilterDialogFragment extends DialogFragment {
     // interface which is inherited when this dialog is implemented
     public interface AddFilterDialogListener {
         void onDialogPositiveClick(AddFilterDialogFragment dialog);
-        void onDialogNegativeClick(DialogFragment dialog);
+        //void onDialogNegativeClick(DialogFragment dialog);
     }
 
 

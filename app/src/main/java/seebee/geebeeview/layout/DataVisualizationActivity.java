@@ -46,6 +46,7 @@ import java.util.Comparator;
 
 import seebee.geebeeview.R;
 import seebee.geebeeview.database.DatabaseAdapter;
+import seebee.geebeeview.model.account.Dataset;
 import seebee.geebeeview.model.adapter.FilterAdapter;
 import seebee.geebeeview.model.adapter.TextHolderAdapter;
 import seebee.geebeeview.model.consultation.School;
@@ -55,7 +56,8 @@ import seebee.geebeeview.model.monitoring.ValueCounter;
 
 
 public class DataVisualizationActivity extends AppCompatActivity
-        implements AddFilterDialogFragment.AddFilterDialogListener, FilterAdapter.FilterAdapterListener {
+        implements AddFilterDialogFragment.AddFilterDialogListener,
+        AddDatasetDialogFragment.AddDatasetDialogListener, FilterAdapter.FilterAdapterListener {
     private static final String TAG = "DataVisualActivity";
 
     ArrayList<String> datasetList, filterList;
@@ -75,6 +77,7 @@ public class DataVisualizationActivity extends AppCompatActivity
     ArrayList<PatientRecord> filteredRecords;
     String[] xData;
     int[] yData;
+    ArrayList<Dataset> datasets;
     private ValueCounter valueCounter;
     private Spinner spRecordColumn, spChartType;
     private String recordColumn = "BMI";
@@ -142,9 +145,11 @@ public class DataVisualizationActivity extends AppCompatActivity
         rvDataset.setItemAnimator(new DefaultItemAnimator());
         rvDataset.setAdapter(datasetAdapter);
 
-        String temp = schoolName+"("+date+")";
-        datasetList.add(temp);
-        prepareDatasetList();
+        allRecords = new ArrayList<>();
+        /* initialized the fitlered list */
+        filteredRecords = new ArrayList<>();
+        getDatasetList();
+        addDatasetToList(schoolName, date);
 
         /* ready recycler view list for filters */
         filterList = new ArrayList<>();
@@ -155,14 +160,21 @@ public class DataVisualizationActivity extends AppCompatActivity
         rvFilter.setAdapter(filterAdapter);
 
         prepareFilterList(null);
-        /* initialized the fitlered list */
-        filteredRecords = new ArrayList<>();
 
         btnAddFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DialogFragment addFilterDialog = new AddFilterDialogFragment();
                 addFilterDialog.show(getFragmentManager(), AddFilterDialogFragment.TAG);
+            }
+        });
+
+        btnAddDataset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddDatasetDialogFragment addDatasetDialog = new AddDatasetDialogFragment();
+                addDatasetDialog.setDatasetList(datasets);
+                addDatasetDialog.show(getFragmentManager(), AddDatasetDialogFragment.TAG);
             }
         });
 
@@ -182,8 +194,6 @@ public class DataVisualizationActivity extends AppCompatActivity
             }
         });
 
-        /* get records of patients taken in specified school and date from database */
-        prepareRecord(schoolName, date);
         /* prepare record so that it can be plotted immediately */
         prepareChartData();
         createCharts();
@@ -401,14 +411,65 @@ public class DataVisualizationActivity extends AppCompatActivity
         filterAdapter.notifyDataSetChanged();
     }
 
-    private void prepareDatasetList() {
+    private void addDatasetToList(String schoolName, String date) {
         /* specify the school and date from which the visualization data comes from */
+        String dataset = schoolName+"("+date+")";
+        if(!datasetList.contains(dataset)) {
+            datasetList.add(dataset);
+        }
 
-//        Log.v("ViewDatasetListActivity", "number of datasets = " + datasetList.size());
+        Log.v(TAG, "number of datasets: " + datasetList.size());
         datasetAdapter.notifyDataSetChanged();
+        /* get records of patients taken in specified school and date from database */
+        prepareRecord();
+        refreshCharts();
     }
 
-    private void prepareRecord(String schoolName, String date){
+    private void prepareRecord(/*String schoolName, String date*/){
+        DatabaseAdapter getBetterDb = new DatabaseAdapter(this);
+        /* ready database for reading */
+        try {
+            getBetterDb.openDatabaseForRead();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Log.v(TAG, "number of records (before): "+allRecords.size());
+        /* get datasetList from database */
+        allRecords.clear();
+        //Log.d(TAG, "number of dataset = "+datasetList.size());
+        for(int i = 0; i < datasetList.size(); i++) {
+            String dataset = datasetList.get(i);
+            String school = dataset.substring(0, dataset.indexOf("("));
+            String date = dataset.substring(dataset.indexOf("(")+1,dataset.indexOf(")"));
+            //Log.d(TAG, "dataset to be added: "+dataset);
+            int schoolId = getSchoolId(school, date);
+            //Log.d(TAG, "schoolId = "+schoolId);
+            if(schoolId != -1) {
+                allRecords.addAll(getBetterDb.getRecordsFromSchool(schoolId, date));
+                Log.d(TAG, "added dataset: "+dataset);
+            }
+        }
+
+        /* close database after insert */
+        getBetterDb.closeDatabase();
+        Log.v(TAG, "number of records (after): " + allRecords.size());
+        filteredRecords.clear();
+        filteredRecords.addAll(allRecords);
+    }
+
+    private int getSchoolId(String schoolName, String date) {
+        //Log.d(TAG, "schoolName: "+schoolName);
+        //Log.d(TAG, "date: "+date);
+        for(int i = 0; i < datasets.size(); i++) {
+            if(datasets.get(i).getSchoolName().contentEquals(schoolName)
+                    && datasets.get(i).getDate().contentEquals(date)) {
+                return datasets.get(i).getSchoolID();
+            }
+        }
+        return -1;
+    }
+
+    private void getDatasetList() {
         DatabaseAdapter getBetterDb = new DatabaseAdapter(this);
         /* ready database for reading */
         try {
@@ -417,11 +478,9 @@ public class DataVisualizationActivity extends AppCompatActivity
             e.printStackTrace();
         }
         /* get datasetList from database */
-        allRecords = getBetterDb.getRecordsFromSchool(schoolID, date);
+        datasets = getBetterDb.getAllDatasets();
         /* close database after insert */
         getBetterDb.closeDatabase();
-        Log.v(TAG, "number of records = " + allRecords.size());
-        filteredRecords.addAll(allRecords);
     }
 
     private ArrayList<Integer> getColorPalette() {
@@ -590,11 +649,6 @@ public class DataVisualizationActivity extends AppCompatActivity
         refreshCharts();
     }
 
-    @Override
-    public void onDialogNegativeClick(DialogFragment dialog) {
-
-    }
-
     private void filterRecordsByGender(String genderValue) {
         Log.d(TAG, "Gender Filter: "+genderValue);
         for(int i = 0; i < filteredRecords.size(); i ++) {
@@ -698,5 +752,13 @@ public class DataVisualizationActivity extends AppCompatActivity
 //        }
 
         refreshCharts();
+    }
+
+    @Override
+    public void onDialogPositiveClick(AddDatasetDialogFragment dialog) {
+        int selectedDatasetIndex = dialog.getSelectedDatasetIndex();
+        Dataset dataset = datasets.get(selectedDatasetIndex);
+        //dataset.printDataset();
+        addDatasetToList(dataset.getSchoolName(), dataset.getDate());
     }
 }
