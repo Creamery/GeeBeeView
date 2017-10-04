@@ -2,6 +2,8 @@ package seebee.geebeeview.model.account;
 
 import android.util.Log;
 
+import java.util.Objects;
+
 /**
  * The Dataset class represents a dataset
  * containing information about the health records
@@ -16,11 +18,17 @@ public class Dataset {
 
     public final static String TABLE_NAME = "tbl_dataset";
 
-    public final static String C_SCHOOL_ID = "school_id";
+    public final static String C_ID = "dataset_id";
+
+    public final static String C_SCHOOLID = "school_id";
+
+    public final static String C_SCHOOL_NAME = "school_name";
 
     public final static String C_DATE_CREATED = "date_created";
 
     public final static String C_STATUS = "status";
+
+    private int id;
 
     private int schoolID;
     /* School name from where dataset was recorded */
@@ -37,19 +45,18 @@ public class Dataset {
      * @param date {@link #date}
      * @param status {@link #status}
      */
-    public Dataset (int schoolID, String schoolName, String date, int status) {
+    public Dataset (int id, int schoolID, String schoolName, String date, int status) {
+        this.id = id;
         this.schoolID = schoolID;
-        this.schoolName = schoolName;
         this.date = date;
         this.status = status;
+        this.schoolName = schoolName;
     }
     /**
      * Gets {@link #schoolName}.
      * @return {@link #schoolName}
      */
-    public String getSchoolName() {
-        return schoolName;
-    }
+
     /**
      * Gets {@link #date}.
      * @return {@link #date}
@@ -70,6 +77,24 @@ public class Dataset {
     }
 
     public void printDataset() {
-        Log.d(TAG, "schoolID: "+schoolID+" schoolName: "+schoolName+" dateCreated: "+date+" status: "+status);
+        Log.d(TAG, "schoolID: "+schoolID+" dateCreated: "+date+" status: "+status);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setStatusTo1(){status =1;}
+
+    public String getSchoolName() {
+        return schoolName;
+    }
+
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
     }
 }
