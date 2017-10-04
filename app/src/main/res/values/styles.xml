@@ -40,6 +40,12 @@
         <!--<item name="android:fontFamily">@font/rudiment</item>-->
     </style>
 
+    <style name="LabelText" parent="android:TextAppearance.Widget.TextView">
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textSize">@dimen/label_text_size</item>
+        <item name="android:padding">@dimen/context_padding</item>
+    </style>
+
     <style name="TitleText" parent="android:TextAppearance.Widget.TextView">
         <item name="android:textColor">@color/yellow</item>
         <item name="android:textSize">@dimen/title_text_size</item>
@@ -59,5 +65,7 @@
     <style name="DefaultSpinner" parent="Base.Widget.AppCompat.Spinner">
         <item name="android:textSize">@dimen/context_text_size</item>
         <item name="android:textColor">@color/white</item>
+
     </style>
+
 </resources>

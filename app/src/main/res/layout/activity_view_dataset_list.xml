@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/DefaultBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/DefaultBackground"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/TitleText"
-        android:text="@string/dataset_title"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            style="@style/TitleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dataset_title"/>
 
-    <Button
-        android:id="@+id/btn_refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        style="@style/DefaultButton"
-        android:allowUndo="true"
-        android:contentDescription="Refreshes list from database"
-        android:text="@string/refresh_dataset_list" />
+        <Button
+            android:id="@+id/btn_refresh"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:allowUndo="true"
+            android:contentDescription="Refreshes list from database"
+            android:text="@string/refresh_dataset_list" />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,24 +31,26 @@
         android:weightSum="3">
 
         <TextView
+            style="@style/LabelText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/school" />
 
         <TextView
+            style="@style/LabelText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textAlignment="center"
-            android:text="@string/date" />
+            android:text="@string/date"
+            android:textAlignment="center" />
 
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_dataset"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/rv_dataset">
+        android:layout_height="match_parent">
 
     </android.support.v7.widget.RecyclerView>
 </LinearLayout>

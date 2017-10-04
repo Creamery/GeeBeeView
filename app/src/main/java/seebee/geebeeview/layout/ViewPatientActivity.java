@@ -344,25 +344,31 @@ public class ViewPatientActivity extends AppCompatActivity {
         String datasetDescription;
         int lineColor;
         float lineWidth = 1f;
+        int fillColor = Color.TRANSPARENT;
+        boolean drawFilled = false;
         switch(index) {
             default:
             case 0: datasetDescription = "Patient";
                 lineColor = ColorTemplate.getHoloBlue();
                 lineWidth = 2f;
                 break;
-            case 1: datasetDescription = "-3 SD";
+            case 1: datasetDescription = "99% (-3SD)"; /* -3SD */
                 lineColor = Color.BLACK;
+//                fillColor = Color.LTGRAY;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Severe Thinness";
+                    drawFilled = true;
+                    fillColor = Color.BLACK;
                 }
                 break;
-            case 2: datasetDescription = "-2 SD";
+            case 2: datasetDescription = "95% (-2SD)";
                 lineColor = Color.RED;
+//                fillColor = Color.BLACK;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Thinness";
                 }
                 break;
-            case 3: datasetDescription = "-1 SD";
+            case 3: datasetDescription = "68% (-1SD)";
                 lineColor = Color.YELLOW;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "";
@@ -372,19 +378,19 @@ public class ViewPatientActivity extends AppCompatActivity {
             case 4: datasetDescription = "Normal";
                 lineColor = Color.GREEN;
                 break;
-            case 5: datasetDescription = "1 SD";
+            case 5: datasetDescription = "68% (1SD)";
                 lineColor = Color.YELLOW;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Overweight";
                 }
                 break;
-            case 6: datasetDescription = "2 SD";
+            case 6: datasetDescription = "95% (2SD)";
                 lineColor = Color.RED;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Obesity";
                 }
                 break;
-            case 7: datasetDescription = "3 SD";
+            case 7: datasetDescription = "99% (3SD)";
                 lineColor = Color.BLACK;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "";
@@ -407,6 +413,9 @@ public class ViewPatientActivity extends AppCompatActivity {
         } else {
             lineDataset.setDrawCircles(false);
             lineDataset.setValueTextColor(Color.TRANSPARENT);
+            lineDataset.setDrawFilled(drawFilled);
+            lineDataset.setFillColor(fillColor);
+
         }
 
         return lineDataset;

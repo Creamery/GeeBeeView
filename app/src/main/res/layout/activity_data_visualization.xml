@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="seebee.geebeeview.layout.DataVisualizationActivity"
+    style="@style/DefaultBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/DefaultBackground"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="seebee.geebeeview.layout.DataVisualizationActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
             android:id="@+id/btn_dv_back"
+            style="@style/DefaultButton"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            style="@style/DefaultButton"
             android:text="@string/btn_back"/>
         <TextView
             style="@style/TitleText"
@@ -36,50 +36,51 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:orientation="horizontal">
                 <TextView
+                    style="@style/LabelText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/DefaultText"
                     android:text="@string/dataset"/>
                 <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_dv_dataset"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/rv_dv_dataset">
+                    android:layout_height="wrap_content">
 
                 </android.support.v7.widget.RecyclerView>
             </LinearLayout>
             <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/btn_add_dataset"
                 style="@style/DefaultButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/add_dataset"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:orientation="horizontal">
                 <TextView
+                    style="@style/LabelText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/filter"
-                    style="@style/DefaultText"/>
+                    android:text="@string/filter"/>
                 <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_dv_filter"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/rv_dv_filter">
+                    android:layout_height="wrap_content">
 
                 </android.support.v7.widget.RecyclerView>
             </LinearLayout>
             <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/btn_add_filter"
                 style="@style/DefaultButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/add_filter"/>
             <TextView
+                style="@style/LabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/chart"/>
@@ -90,6 +91,7 @@
                 android:entries="@array/chart_type_array">
             </Spinner>
             <TextView
+                style="@style/LabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/displayed_data"/>
@@ -100,22 +102,22 @@
                 android:entries="@array/record_column_array">
             </Spinner>
             <Button
+                android:id="@+id/btn_view_hpi_list"
+                style="@style/DefaultButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/DefaultButton"
-                android:id="@+id/btn_view_hpi_list"
                 android:text="@string/view_HPI_list"/>
             <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/btn_view_patient_list"
                 style="@style/DefaultButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/view_patient_list"/>
         </LinearLayout>
         <RelativeLayout
+            android:id="@+id/graph_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/graph_container">
+            android:layout_height="match_parent">
 
         </RelativeLayout>
     </LinearLayout>
