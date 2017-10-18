@@ -1,4 +1,4 @@
-package seebee.geebeeview.model.adapter;
+package seebee.geebeeview.adapter;
 
 import android.content.Context;
 import android.content.Intent;

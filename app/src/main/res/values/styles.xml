@@ -17,7 +17,7 @@
     -->
     <style name="DefaultBackground">
         <item name="android:background">#1B5E20</item>
-        <item name="android:padding">@dimen/activity_horizontal_margin</item>
+        <item name="android:padding">@dimen/activity_margin</item>
     </style>
 
     <style name="ECAPlaceholder" parent="android:Widget">

@@ -12,8 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import seebee.geebeeview.R;
+import seebee.geebeeview.adapter.PatientListAdapter;
 import seebee.geebeeview.database.DatabaseAdapter;
-import seebee.geebeeview.model.adapter.PatientListAdapter;
 import seebee.geebeeview.model.consultation.Patient;
 import seebee.geebeeview.model.consultation.School;
 import seebee.geebeeview.model.monitoring.Record;

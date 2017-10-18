@@ -1,4 +1,4 @@
-package seebee.geebeeview.model.adapter;
+package seebee.geebeeview.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

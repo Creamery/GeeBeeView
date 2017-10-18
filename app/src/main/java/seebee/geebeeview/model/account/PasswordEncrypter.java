@@ -1,6 +1,5 @@
 package seebee.geebeeview.model.account;
 
-import android.util.Base64;
 import android.util.Log;
 
 import java.security.SecureRandom;
@@ -47,9 +46,9 @@ public class PasswordEncrypter {
             Log.e(TAG, "AES encryption error");
         }
 
-        String encryptedText = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+        //String encryptedText = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
 
-        Log.v("Encrypted Text", encryptedText);
+        //Log.v("Encrypted Text", encryptedText);
 
         return encodedBytes;
     }
@@ -57,9 +56,8 @@ public class PasswordEncrypter {
     public String decodePassword(byte[] encodedBytes) {
         // Decode the encoded data with AES
         byte[] decodedBytes = null;
-        //byte[] encodedBytes = Base64.decode(encryptedText, Base64.);
 
-        Log.v("Decode", Base64.encodeToString(encodedBytes, Base64.DEFAULT));
+        //Log.v("Decode", Base64.encodeToString(encodedBytes, Base64.DEFAULT));
 
         try {
             Cipher c = Cipher.getInstance("AES");
@@ -77,8 +75,7 @@ public class PasswordEncrypter {
         }
 
         String decodedString = new String(decodedBytes);
-        Log.v("Decoded String", decodedString);
-        //Log.v("Temp String", new String(tempBytes));
+        //Log.v("Decoded String", decodedString);
         return decodedString;
     }
 

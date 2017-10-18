@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="seebee.geebeeview">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +25,7 @@
         <activity android:name=".layout.ViewPatientActivity" />
         <activity android:name=".layout.ViewHPIListActivity" />
         <activity android:name=".layout.ViewHPIActivity" />
+        <activity android:name=".layout.ViewVaccinationActivity"></activity>
     </application>
 
 </manifest>

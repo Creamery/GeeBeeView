@@ -45,26 +45,22 @@ public class DatabaseAdapter {
      * Used to identify the source of a log message
      */
     protected static final String TAG = "DatabaseAdapter";
-
-    /**
-     * use as the database of the app
-     */
-    private SQLiteDatabase getBetterDb;
-
-    /**
-     * Contains the helper class of the database
-     */
-    private DatabaseHelper getBetterDatabaseHelper;
-
     /**
      * Table name of the symptoms in the database
      */
     private static final String SYMPTOM_LIST = "tbl_symptom_list";
-
     /**
      * Table name of the symptom families in the database
      */
     private static final String SYMPTOM_FAMILY = "tbl_symptom_family";
+    /**
+     * use as the database of the app
+     */
+    private SQLiteDatabase getBetterDb;
+    /**
+     * Contains the helper class of the database
+     */
+    private DatabaseHelper getBetterDatabaseHelper;
 
     /**
      * Creates a new instance of {@link DatabaseHelper}.
@@ -966,6 +962,7 @@ public class DatabaseAdapter {
         closeDatabase();
         return schoolName;
     }
+
     public ArrayList<Patient> getPatientsWithCondition(int schoolId, String date, String column, String value) {
         ArrayList<Patient> patients = new ArrayList<Patient>();
         Cursor c;
@@ -1051,5 +1048,84 @@ public class DatabaseAdapter {
         return idealValue;
     }
 
+    public Record getAverageRecord(Patient patient, String recordDate) {
+        Record record = null;
+        String recordYear, birthYear;
+        recordYear = recordDate.substring(recordDate.length()-4);
+        birthYear = patient.getBirthday().substring(patient.getBirthday().length()-4);
 
+        String sql = "SELECT AVG(r.height), AVG(r.weight) " +
+                "FROM tbl_record AS r, tbl_patient AS p " +
+                "WHERE r.patient_id = p.patient_id " +
+                "AND r.date_created LIKE '%"+recordYear+"'" +
+                "AND p.birthday LIKE '%"+birthYear+"'";
+
+        Cursor c = getBetterDb.rawQuery(sql, null);
+        Log.v(TAG, "recordYear = "+recordYear);
+        Log.v(TAG, "birthYear = "+birthYear);
+        if(c.moveToFirst()) {
+            record = new Record();
+            record.setHeight(c.getDouble(0));
+            record.setWeight(c.getDouble(1));
+        }
+
+        String[] recordColumns = {Record.C_VISUAL_ACUITY_LEFT, Record.C_VISUAL_ACUITY_RIGHT,
+                Record.C_COLOR_VISION, Record.C_HEARING_LEFT, Record.C_HEARING_RIGHT,
+                Record.C_GROSS_MOTOR, Record.C_FINE_MOTOR_DOMINANT, Record.C_FINE_MOTOR_N_DOMINANT,
+                Record.C_FINE_MOTOR_HOLD};
+
+        for(int i = 0; i < recordColumns.length; i++) {
+            c = getMostFrequentValue(birthYear, recordYear, recordColumns[i]);
+            if(c.moveToFirst()) {
+                switch (recordColumns[i]) {
+                    case Record.C_VISUAL_ACUITY_LEFT:
+                        record.setVisualAcuityLeft(c.getString(0));
+                        break;
+                    case Record.C_VISUAL_ACUITY_RIGHT:
+                        record.setVisualAcuityRight(c.getString(0));
+                        break;
+                    case Record.C_COLOR_VISION:
+                        record.setColorVision(c.getString(0));
+                        break;
+                    case Record.C_HEARING_LEFT:
+                        record.setHearingLeft(c.getString(0));
+                        break;
+                    case Record.C_HEARING_RIGHT:
+                        record.setHearingRight(c.getString(0));
+                        break;
+                    case Record.C_GROSS_MOTOR:
+                        record.setGrossMotor(c.getInt(0));
+                        break;
+                    case Record.C_FINE_MOTOR_DOMINANT:
+                        record.setFineMotorDominant(c.getInt(0));
+                        break;
+                    case Record.C_FINE_MOTOR_N_DOMINANT:
+                        record.setFineMotorDominant(c.getInt(0));
+                        break;
+                    case Record.C_FINE_MOTOR_HOLD:
+                        record.setFineMotorDominant(c.getInt(0));
+                        break;
+                }
+            }
+        }
+
+        return record;
+    }
+
+    private Cursor getMostFrequentValue(String birthYear, String recordYear, String recordColumn) {
+        String sql = "SELECT ?, COUNT(*)" +
+                "FROM tbl_record AS r, tbl_patient AS p " +
+                "WHERE r.patient_id = p.patient_id " +
+                "AND r.date_created LIKE '%"+recordYear+"' " +
+                "AND p.birthday LIKE '%"+birthYear+"' " +
+                "GROUP BY ? " +
+                "ORDER BY count(*) DESC " +
+                "LIMIT 1";
+
+        String[] selectionArgs = {"r."+recordColumn, "r."+recordColumn};
+
+        Cursor c = getBetterDb.rawQuery(sql, selectionArgs);
+
+        return c;
+    }
 }

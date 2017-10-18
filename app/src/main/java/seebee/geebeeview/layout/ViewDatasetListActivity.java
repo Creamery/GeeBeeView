@@ -26,19 +26,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import seebee.geebeeview.R;
+import seebee.geebeeview.adapter.DatasetAdapter;
 import seebee.geebeeview.database.DatabaseAdapter;
 import seebee.geebeeview.database.VolleySingleton;
 import seebee.geebeeview.model.account.Dataset;
-import seebee.geebeeview.model.adapter.DatasetAdapter;
 import seebee.geebeeview.model.consultation.School;
 
 public class ViewDatasetListActivity extends AppCompatActivity {
     private final static String TAG =  "ViewDatasetListActivity";
+    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
     RecyclerView rvDataset;
     Button btnRefresh;
     ArrayList<Dataset> datasetList = new ArrayList<>();
     DatasetAdapter datasetAdapter;
-    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
     DatabaseAdapter getBetterDb;
 
     @Override

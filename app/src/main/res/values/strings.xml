@@ -35,6 +35,7 @@
     <string name="last_record">Last Check Up: </string>
     <string name="bmi">BMI: </string>
     <string name="remarks">Remarks: </string>
+    <string name="record_date">Record Date:</string>
 
     <string name="height">Height</string>
     <string name="weight">Weight</string>
@@ -48,7 +49,8 @@
     <string name="dominant">Dominant</string>
     <string name="non_dominant">Non-Dominant</string>
 
-    <string name="view_hpi">VIEW  CONSULTATION RECORDS</string>
+    <string name="view_hpi">CONSULTATION RECORDS</string>
+    <string name="view_immunization">IMMUNIZATION RECORDS</string>
     <string name="refresh_dataset_list">REFRESH DATASET LIST</string>
 
     <string name="view_HPI_list">VIEW CONSULTATION LIST</string>

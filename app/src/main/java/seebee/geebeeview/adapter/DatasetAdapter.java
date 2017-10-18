@@ -1,4 +1,4 @@
-package seebee.geebeeview.model.adapter;
+package seebee.geebeeview.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -39,28 +39,14 @@ import seebee.geebeeview.model.monitoring.Record;
  */
 
 public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetViewHolder> {
+    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
     private final String TAG = "DatasetAdapter";
     private ArrayList<Dataset> datasetList;
     private Context context;
     private DatabaseAdapter getbetterDb ;
-    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
 
     public DatasetAdapter(ArrayList<Dataset> datasetList) {
         this.datasetList = datasetList;
-    }
-
-    public class DatasetViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvSchoolName, tvDate;
-        public Button btnStatus;
-
-        public DatasetViewHolder(View view) {
-            super(view);
-            context = view.getContext();
-            getbetterDb = new DatabaseAdapter(context);
-            tvSchoolName = (TextView) view.findViewById(R.id.tv_dataset_sname);
-            tvDate = (TextView) view.findViewById(R.id.tv_dataset_date);
-            btnStatus = (Button) view.findViewById(R.id.btn_dataset_status);
-        }
     }
 
     @Override
@@ -122,18 +108,6 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
     public int getItemCount() {
         return datasetList.size();
     }
-
-//    public void refreshDataset(ArrayList<Dataset> newDatasets){
-//        if (datasetList != null) {
-//            datasetList.clear();
-//            datasetList.addAll(newDatasets);
-//        }
-//        else {
-//            datasetList = newDatasets;
-//        }
-//        notifyDataSetChanged();
-//    }
-
 
     private void downloadDataset(final Dataset dataset){
 
@@ -202,7 +176,33 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
 
 
     }
+
+//    public void refreshDataset(ArrayList<Dataset> newDatasets){
+//        if (datasetList != null) {
+//            datasetList.clear();
+//            datasetList.addAll(newDatasets);
+//        }
+//        else {
+//            datasetList = newDatasets;
+//        }
+//        notifyDataSetChanged();
+//    }
+
     public void clearDatasetList(){
         datasetList.clear();
+    }
+
+    public class DatasetViewHolder extends RecyclerView.ViewHolder {
+        public TextView tvSchoolName, tvDate;
+        public Button btnStatus;
+
+        public DatasetViewHolder(View view) {
+            super(view);
+            context = view.getContext();
+            getbetterDb = new DatabaseAdapter(context);
+            tvSchoolName = (TextView) view.findViewById(R.id.tv_dataset_sname);
+            tvDate = (TextView) view.findViewById(R.id.tv_dataset_date);
+            btnStatus = (Button) view.findViewById(R.id.btn_dataset_status);
+        }
     }
 }

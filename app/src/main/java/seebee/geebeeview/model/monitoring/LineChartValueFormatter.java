@@ -17,6 +17,32 @@ public class LineChartValueFormatter  {
     //private final static float[] visualAcuity = {-200f, -100f, -70f, -50f, -40f, -30f, -30f, -25f, 20f, -15f, -10f, -5f};
     private final static String TAG = "LineChartValueFormatter";
 
+    public static YAxisValueFormatter getYAxisValueFormatterBMI(final IdealValue idealValue) {
+        Log.v(TAG, "getYAxisValueFormatter");
+        return new YAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float v, YAxis yAxis) {
+                return ConvertBMI(v, idealValue);
+            }
+        };
+    }
+
+    private static String ConvertBMI(float v, IdealValue idealValue) {
+        String result = "";
+        if(v <= idealValue.getN3SD()) {
+            result = "Severe Thinness";
+        } else if(v > idealValue.getN3SD() && v <= idealValue.getN2SD()) {
+            result = "Thinness";
+        } else if(v > idealValue.getN2SD() && v < idealValue.getP1SD()) {
+            result = "Normal";
+        } else if(v >= idealValue.getP1SD() && v < idealValue.getP2SD()) {
+            result = "Overweight";
+        } else if(v >= idealValue.getP2SD()) {
+            result = "Obese";
+        }
+        return result;
+    }
+
     public static float ConvertVisualAcuity(String visualAcuity) {
         float value;
         switch (visualAcuity) {
@@ -217,20 +243,11 @@ public class LineChartValueFormatter  {
         };
     }
 
-    public static YAxisValueFormatter getYAxisValueFormatterBMI(final boolean isGirl, final int age) {
-        return new YAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(float v, YAxis yAxis) {
-                return BMICalculator.getBMIResultString(isGirl, age, v);
-            }
-        };
-    }
-
-    public static ValueFormatter getValueFormatterBMI(final boolean isGirl, final int age) {
+    public static ValueFormatter getValueFormatterBMI(final IdealValue idealValue) {
         return new ValueFormatter() {
             @Override
             public String getFormattedValue(float v, Entry entry, int i, ViewPortHandler viewPortHandler) {
-                return BMICalculator.getBMIResultString(isGirl, age, v);
+                return ConvertBMI(v, idealValue);
             }
         };
     }

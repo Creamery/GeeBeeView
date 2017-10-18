@@ -45,10 +45,10 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import seebee.geebeeview.R;
+import seebee.geebeeview.adapter.FilterAdapter;
+import seebee.geebeeview.adapter.TextHolderAdapter;
 import seebee.geebeeview.database.DatabaseAdapter;
 import seebee.geebeeview.model.account.Dataset;
-import seebee.geebeeview.model.adapter.FilterAdapter;
-import seebee.geebeeview.model.adapter.TextHolderAdapter;
 import seebee.geebeeview.model.consultation.School;
 import seebee.geebeeview.model.monitoring.PatientRecord;
 import seebee.geebeeview.model.monitoring.Record;
@@ -57,7 +57,7 @@ import seebee.geebeeview.model.monitoring.ValueCounter;
 
 public class DataVisualizationActivity extends AppCompatActivity
         implements AddFilterDialogFragment.AddFilterDialogListener,
-        AddDatasetDialogFragment.AddDatasetDialogListener, FilterAdapter.FilterAdapterListener {
+        AddDatasetDialogFragment.AddDatasetDialogListener, FilterAdapter.FilterAdapterListener, TextHolderAdapter.TextListener {
     private static final String TAG = "DataVisualActivity";
 
     ArrayList<String> datasetList, filterList;
@@ -139,7 +139,7 @@ public class DataVisualizationActivity extends AppCompatActivity
 
         /* ready recycler view list for dataset */
         datasetList = new ArrayList<>();
-        datasetAdapter = new TextHolderAdapter(datasetList);
+        datasetAdapter = new TextHolderAdapter(datasetList, this);
         RecyclerView.LayoutManager dLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvDataset.setLayoutManager(dLayoutManager);
         rvDataset.setItemAnimator(new DefaultItemAnimator());
@@ -760,5 +760,12 @@ public class DataVisualizationActivity extends AppCompatActivity
         Dataset dataset = datasets.get(selectedDatasetIndex);
         //dataset.printDataset();
         addDatasetToList(dataset.getSchoolName(), dataset.getDate());
+    }
+
+    @Override
+    public void removeDataset(String dataset) {
+        datasetList.remove(dataset);
+        prepareRecord();
+        refreshCharts();
     }
 }

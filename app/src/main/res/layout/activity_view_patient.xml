@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    style="@style/DefaultBackground"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/DefaultBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="seebee.geebeeview.layout.ViewPatientActivity">
 
     <TextView
-        style="@style/TitleText"
         android:id="@+id/tv_name_r"
+        style="@style/TitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/name" />
@@ -28,136 +28,177 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="viewEnd"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/iv_patient"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/birthday"/>
-                <TextView
-                    android:id="@+id/tv_birthday"
-                    android:layout_width="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/no_photo"/>
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textAlignment="viewStart"
                     android:layout_weight="1"
-                    android:text="@string/date"/>
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/birthday"
+                            android:textAlignment="viewEnd"/>
+                        <TextView
+                            android:id="@+id/tv_birthday"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/date"
+                            android:textAlignment="viewStart"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/gender_r"
+                            android:textAlignment="viewEnd"/>
+                        <TextView
+                            android:id="@+id/tv_gender"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/gender"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/dominant_hand"
+                            android:textAlignment="viewEnd" />
+                        <TextView
+                            android:id="@+id/tv_dominant_hand"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/right"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/last_record"
+                            android:textAlignment="viewEnd" />
+                        <TextView
+                            android:id="@+id/tv_record_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/date"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/bmi"
+                            android:textAlignment="viewEnd" />
+                        <TextView
+                            android:id="@+id/tv_bmi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/bmi"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/remarks"
+                            android:textAlignment="viewEnd" />
+                        <TextView
+                            android:id="@+id/tv_remarks"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/remarks"/>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAlignment="viewEnd"
-                    android:text="@string/gender_r"/>
-                <TextView
-                    android:id="@+id/tv_gender"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/gender"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/dominant_hand"
-                    android:textAlignment="viewEnd" />
-                <TextView
-                    android:id="@+id/tv_dominant_hand"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/right"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/last_record"
-                    android:textAlignment="viewEnd" />
-                <TextView
-                    android:id="@+id/tv_record_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/date"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/bmi"
-                    android:textAlignment="viewEnd" />
-                <TextView
-                    android:id="@+id/tv_bmi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/bmi"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/remarks"
-                    android:textAlignment="viewEnd" />
-                <TextView
-                    android:id="@+id/tv_remarks"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/remarks"/>
-            </LinearLayout>
-
-<!--            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical">
-                -->
                 <Button
                     android:id="@+id/btn_view_hpi"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     style="@style/DefaultButton"
-                    android:text="@string/view_hpi"/>
-            <!--    <Button
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:text="@string/view_hpi"/>
+                <Button
+                    android:id="@+id/btn_view_immunization"
                     style="@style/DefaultButton"
-                    android:text="@string/view_prev_records"/>
-            </LinearLayout> -->
-            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/view_immunization"/>
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/DefaultText"
-                android:text="@string/displayed_data"/>
-            <Spinner
-                android:id="@+id/sp_vp_record_column"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/record_column_array_num">
-            </Spinner>
+                android:layout_height="wrap_content">
+                <TextView
+                    style="@style/DefaultText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/displayed_data"/>
+                <Spinner
+                    android:id="@+id/sp_vp_record_column"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:entries="@array/record_column_array_num">
+                </Spinner>
+            </LinearLayout>
+
             <View
-                android:layout_height="5dp"
                 android:layout_width="match_parent"
-                android:padding="@dimen/context_margin"
-                android:background="@color/yellow"/>
+                android:layout_height="5dp"
+                android:background="@color/yellow"
+                android:padding="@dimen/context_margin"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    style="@style/DefaultText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/record_date"/>
+                <Spinner
+                    android:id="@+id/sp_record_date"
+                    style="@style/DefaultSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true">
+                </Spinner>
+            </RelativeLayout>
+
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -339,12 +380,7 @@
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>
-            <Spinner
-                style="@style/DefaultSpinner"
-                android:id="@+id/sp_record_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </Spinner>
+
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/patient_chart_container"
