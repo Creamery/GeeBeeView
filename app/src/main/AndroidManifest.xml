@@ -25,7 +25,7 @@
         <activity android:name=".layout.ViewPatientActivity" />
         <activity android:name=".layout.ViewHPIListActivity" />
         <activity android:name=".layout.ViewHPIActivity" />
-        <activity android:name=".layout.ViewVaccinationActivity"></activity>
+        <activity android:name=".layout.ViewImmunizationActivity"/>
     </application>
 
 </manifest>

@@ -43,7 +43,6 @@ public class AddDatasetDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: ADD DATASET
                         mListener.onDialogPositiveClick(AddDatasetDialogFragment.this);
                     }
                 })

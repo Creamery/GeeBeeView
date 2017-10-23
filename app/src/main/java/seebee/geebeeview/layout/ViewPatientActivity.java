@@ -118,7 +118,20 @@ public class ViewPatientActivity extends AppCompatActivity {
         btnViewImmunization.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: CREATE ACTIVITY FOR THIS
+                boolean hasImmunization = false;
+                /* check if patient has even 1 immunization record */
+                for(int i = 0; i < patientRecords.size(); i++) {
+                    if(patientRecords.get(i).getVaccination() != null) {
+                        hasImmunization = true;
+                    }
+                }
+                if(hasImmunization) {
+                    Intent intent = new Intent(v.getContext(), ViewImmunizationActivity.class);
+                    intent.putExtra(Patient.C_PATIENT_ID, patient.getPatientID());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(ViewPatientActivity.this, R.string.no_immunizaiton, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -187,13 +200,6 @@ public class ViewPatientActivity extends AppCompatActivity {
                 AgeCalculator.calculateAge(patient.getBirthday(), recordDate),
                 BMICalculator.computeBMIMetric(Double.valueOf(record.getHeight()).intValue(),
                         Double.valueOf(record.getWeight()).intValue()));
-        /* TODO: REMOVE AFTER TESTING */
-//        Bitmap bmp1 = BitmapFactory.decodeResource(getResources(), R.drawable.sample);
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        bmp1.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//        byte[] byteArray = stream.toByteArray();
-//        record.setPatientPicture(byteArray);
-        // up to here
         if(record.getPatientPicture() != null) {
             Bitmap bmp = BitmapFactory.decodeByteArray(record.getPatientPicture(), 0, record.getPatientPicture().length);
 
@@ -423,12 +429,16 @@ public class ViewPatientActivity extends AppCompatActivity {
                 lineColor = Color.YELLOW;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Overweight";
+                    drawFilled = true;
+                    fillColor = Color.GREEN;
                 }
                 break;
             case 7: datasetDescription = "95% (2SD)";
                 lineColor = Color.RED;
                 if(recordColumn.equals("BMI")) {
                     datasetDescription = "Obesity";
+                    drawFilled = true;
+                    fillColor = Color.YELLOW;
                 }
                 break;
             case 8: datasetDescription = "99% (3SD)";

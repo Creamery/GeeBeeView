@@ -53,6 +53,8 @@
     <string name="view_immunization">IMMUNIZATION RECORDS</string>
     <string name="refresh_dataset_list">REFRESH DATASET LIST</string>
 
+    <string name="immunization_records">IMMUNIZATION:</string>
+
     <string name="view_HPI_list">VIEW CONSULTATION LIST</string>
     <string name="case_impression">Case Impression</string>
     <string name="default_hpi">No HPI Text</string>
@@ -62,6 +64,8 @@
     <string name="cancel">Cancel</string>
     <string name="na">N/A</string>
     <string name="close">X</string>
+
+    <string name="no_immunizaiton">Patient has no immunization records!</string>
 
     <string-array name="record_column_array">
         <item>BMI</item>
