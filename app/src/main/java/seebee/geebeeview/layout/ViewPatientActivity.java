@@ -5,7 +5,9 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +32,9 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.YAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +52,9 @@ public class ViewPatientActivity extends AppCompatActivity {
 
     private static final String TAG = "ViewPatientActivity";
 
-    private TextView tvName, tvBirthday, tvGender, tvDominantHand, tvRecordDate, tvBMI, tvRemarks;
+    private TextView tvName, tvBirthday, tvGender, tvDominantHand, tvRecordDate, tvBMI, tvPatientRemark;
     private TextView tvHeight, tvWeight, tvVisualLeft, tvVisualRight, tvColorVision, tvHearingLeft,
-            tvHearingRight, tvGrossMotor, tvFineMotorD, tvFineMotorND;
+            tvHearingRight, tvGrossMotor, tvFineMotorD, tvFineMotorND, tvRecordRemark;
     private ImageView ivPatient;
     private Button btnViewHPI, btnViewImmunization;
     private Spinner spRecordDate;
@@ -86,7 +91,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         tvDominantHand = (TextView) findViewById(R.id.tv_dominant_hand);
         tvRecordDate = (TextView) findViewById(R.id.tv_record_date);
         tvBMI = (TextView) findViewById(R.id.tv_bmi);
-        tvRemarks = (TextView) findViewById(R.id.tv_remarks);
+        tvPatientRemark = (TextView) findViewById(R.id.tv_patient_remark);
         /* connect views in layout to show record of last check up */
         tvHeight = (TextView) findViewById(R.id.tv_height);
         tvWeight = (TextView) findViewById(R.id.tv_weight);
@@ -98,6 +103,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         tvGrossMotor = (TextView) findViewById(R.id.tv_gross_motor);
         tvFineMotorD = (TextView) findViewById(R.id.tv_fine_motor_d);
         tvFineMotorND = (TextView) findViewById(R.id.tv_fine_motor_nd);
+        tvRecordRemark = (TextView) findViewById(R.id.tv_record_remark);
         /* connect graph container to here */
         graphLayout = (RelativeLayout) findViewById(R.id.patient_chart_container);
         /* connect spinner here */
@@ -143,7 +149,8 @@ public class ViewPatientActivity extends AppCompatActivity {
             tvBirthday.setText(patient.getBirthday());
             tvGender.setText(patient.getGenderString());
             tvDominantHand.setText(patient.getHandednessString());
-            tvRemarks.setText(patient.getRemarksString());
+            tvPatientRemark.setText(patient.getRemarksString());
+            convertBlobToFile(patient.getRemarksAudio());
         }
 
         getPatientRecords();
@@ -217,6 +224,7 @@ public class ViewPatientActivity extends AppCompatActivity {
         tvGrossMotor.setText(record.getGrossMotorString());
         tvFineMotorD.setText(record.getFineMotorString(record.getFineMotorDominant()));
         tvFineMotorND.setText(record.getFineMotorString(record.getFineMotorNDominant()));
+        tvRecordRemark.setText(record.getRemarksString());
     }
 
 //    private void prepareRadarChartData() {
@@ -637,5 +645,27 @@ public class ViewPatientActivity extends AppCompatActivity {
                 displayRecord(lastRecord);
             }
         });
+    }
+
+    private void convertBlobToFile(byte[] soundBytes) {
+        String outputFile= Environment.getExternalStorageDirectory().getAbsolutePath() + "/output.mp3";
+        File path = new File(outputFile);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(path);
+            fos.write(soundBytes);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        MediaPlayer mediaPlayer = new MediaPlayer();
+
+        try {
+            mediaPlayer.setDataSource(outputFile);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
