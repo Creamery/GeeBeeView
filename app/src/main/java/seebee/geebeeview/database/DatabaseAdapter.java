@@ -886,6 +886,7 @@ public class DatabaseAdapter {
     public void updatePatient(Patient patient){
         ContentValues values = new ContentValues();
         int row;
+        values.put(Patient.C_PATIENT_ID, patient.getPatientID());
         values.put(Patient.C_FIRST_NAME, patient.getFirstName());
         values.put(Patient.C_LAST_NAME, patient.getLastName());
         values.put(Patient.C_BIRTHDAY, patient.getBirthday());
