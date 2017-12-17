@@ -34,7 +34,7 @@ import seebee.geebeeview.model.consultation.School;
 
 public class ViewDatasetListActivity extends AppCompatActivity {
     private final static String TAG =  "ViewDatasetListActivity";
-    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
+    private static String URL_SAVE_NAME = "http://128.199.205.226/server.php";
     RecyclerView rvDataset;
     Button btnRefresh;
     ArrayList<Dataset> datasetList = new ArrayList<>();
@@ -107,6 +107,7 @@ public class ViewDatasetListActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         JSONObject jsonDataset;
                         Dataset dataset;
+                        School school;
                         try {
                             JSONArray jsonDatasets = new JSONArray(response);
 //                            datasetList.clear();
@@ -114,8 +115,12 @@ public class ViewDatasetListActivity extends AppCompatActivity {
 
                             for(int i=0;i<jsonDatasets.length();i++){
                                 jsonDataset = jsonDatasets.getJSONObject(i);
-                                dataset = new Dataset(jsonDataset.getInt("dataset_id"), jsonDataset.getInt("school_id"), getBetterDb.getSchoolName(jsonDataset.getInt("school_id")),jsonDataset.getString("date_created"), 0);
-                                getBetterDb.updateDatasetList(dataset);
+                                dataset = new Dataset(jsonDataset.getInt("dataset_id"), jsonDataset.getInt("school_id"),
+                                        jsonDataset.getString("name"),jsonDataset.getString("date_created"), 0);
+                                school = new School(jsonDataset.getInt("school_id"), jsonDataset.getString("name"), getBetterDb.getMunicipalityName(jsonDataset.getInt("citymunCode")), jsonDataset.getInt("citymunCode"));
+
+                                getBetterDb.updateDatasetList(dataset, school);
+                                //Log.e(TAG, "onResponse: " + jsonDataset.getString("name"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();

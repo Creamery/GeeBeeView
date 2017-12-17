@@ -45,20 +45,44 @@ public class School {
      */
     private String municipality;
 
+
+
+    private int municipalityId;
+
     /**
      * Constructor.
-     * @param schoolId {@link #schoolId}
-     * @param schoolName {@link #schoolName}
+     *
+     * @param schoolId     {@link #schoolId}
+     * @param schoolName   {@link #schoolName}
      * @param municipality {@link #municipality}
      */
     public School(int schoolId, String schoolName, String municipality) {
         this.schoolId = schoolId;
         this.schoolName = schoolName;
         this.municipality = municipality;
+
+    }
+    public School(int schoolId, String schoolName, String municipality, int municipalityId) {
+        this.schoolId = schoolId;
+        this.schoolName = schoolName;
+        this.municipality = municipality;
+        this.municipalityId =municipalityId;
+    }
+
+    public School(String schoolName, String municipality, int municipalityId) {
+        this.schoolName = schoolName;
+        this.municipality = municipality;
+        this.municipalityId = municipalityId;
+    }
+
+    public School(String schoolName, String municipality) {
+        this.schoolName = schoolName;
+        this.municipality = municipality;
     }
 
     /**
      * Gets {@link #schoolId}.
+     *
      * @return {@link #schoolId}
      */
     public int getSchoolId() {
@@ -67,6 +91,7 @@ public class School {
 
     /**
      * Gets {@link #schoolName}
+     *
      * @return {@link #schoolName}
      */
     public String getSchoolName() {
@@ -75,9 +100,18 @@ public class School {
 
     /**
      * Gets {@link #municipality}
+     *
      * @return {@link #municipality}
      */
     public String getMunicipality() {
         return municipality;
+    }
+
+    public int getMunicipalityId() {
+        return municipalityId;
+    }
+
+    public void setMunicipalityId(int municipalityId) {
+        this.municipalityId = municipalityId;
     }
 }

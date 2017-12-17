@@ -39,7 +39,7 @@ import seebee.geebeeview.model.monitoring.Record;
  */
 
 public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetViewHolder> {
-    private static String URL_SAVE_NAME = "http://128.199.205.226/save.php";
+    private static String URL_SAVE_NAME = "http://128.199.205.226/server.php";
     private final String TAG = "DatasetAdapter";
     private ArrayList<Dataset> datasetList;
     private Context context;
@@ -136,7 +136,7 @@ public class DatasetAdapter extends RecyclerView.Adapter<DatasetAdapter.DatasetV
                                 patient = new Patient(jsonRecord.getInt(Patient.C_PATIENT_ID),jsonRecord.getString(Patient.C_FIRST_NAME),jsonRecord.getString(Patient.C_LAST_NAME),
                                         jsonRecord.getString(Patient.C_BIRTHDAY), jsonRecord.getInt(Patient.C_GENDER), jsonRecord.getInt(Patient.C_SCHOOL_ID),jsonRecord.getInt(Patient.C_HANDEDNESS),
                                         jsonRecord.getString(Patient.C_REMARKS_STRING),jsonRecord.getString(Patient.C_REMARKS_AUDIO).getBytes());
-                                school = new School(jsonRecord.getInt(School.C_SCHOOL_ID),jsonRecord.getString(School.C_SCHOOLNAME), jsonRecord.getString(School.C_MUNICIPALITY));
+                                school = new School(jsonRecord.getInt(School.C_SCHOOL_ID),jsonRecord.getString(School.C_SCHOOLNAME), jsonRecord.getString("citymunCode"));
                                 getbetterDb.updateRecord(record);
                                 getbetterDb.updatePatient(patient);
                                 getbetterDb.updateSchools(school);

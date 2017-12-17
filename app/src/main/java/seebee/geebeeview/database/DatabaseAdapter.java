@@ -823,7 +823,7 @@ public class DatabaseAdapter {
         return HPIs;
     }
 
-    public boolean updateDatasetList(Dataset dataset){
+    public boolean updateDatasetList(Dataset dataset, School school){
         ContentValues initialValues = new ContentValues();
         initialValues.put("dataset_id", dataset.getId());
         initialValues.put("status", 0); // the execution is different if _id is 2
@@ -837,6 +837,14 @@ public class DatabaseAdapter {
         }
         int id = (int) getBetterDb.insertWithOnConflict("tbl_dataset", null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
         //Log.d(TAG, "Number of Dataset:" + getAllDatasets().size());
+
+        initialValues = new ContentValues();
+
+        initialValues.put("school_id", school.getSchoolId());
+        initialValues.put("name", school.getSchoolName());
+        initialValues.put("municipality", school.getMunicipalityId());
+
+        id = (int) getBetterDb.insertWithOnConflict("tbl_school", null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
         closeDatabase();
         return true;
     }
@@ -1128,5 +1136,21 @@ public class DatabaseAdapter {
         Cursor c = getBetterDb.rawQuery(sql, selectionArgs);
 
         return c;
+    }
+
+    public String getMunicipalityName(int citymunCode) {
+        String municipalityName = "";
+        try {
+            openDatabaseForRead();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String query = "SELECT citymunDesc FROM tbl_municipality WHERE citymunCode = ? ";
+        Cursor c = getBetterDb.rawQuery(query, new String[] {Integer.toString(citymunCode)});
+        if(c.moveToFirst())
+            municipalityName = c.getString(0);
+        closeDatabase();
+        return municipalityName;
+
     }
 }

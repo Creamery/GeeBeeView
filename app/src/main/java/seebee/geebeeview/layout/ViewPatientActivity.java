@@ -209,9 +209,15 @@ public class ViewPatientActivity extends AppCompatActivity {
                         Double.valueOf(record.getWeight()).intValue()));
         if(record.getPatientPicture() != null) {
             Bitmap bmp = BitmapFactory.decodeByteArray(record.getPatientPicture(), 0, record.getPatientPicture().length);
-
-            ivPatient.setImageBitmap(Bitmap.createScaledBitmap(bmp, ivPatient.getWidth(),
-                    ivPatient.getHeight(), false));
+            try {
+                ivPatient.setImageBitmap(
+                        Bitmap.createScaledBitmap(
+                                bmp,
+                                ivPatient.getWidth(),
+                                ivPatient.getHeight(), false));
+            }catch (NullPointerException e ){
+                e.printStackTrace();
+            }
         }
         tvBMI.setText(bmi);
         tvHeight.setText(record.getHeight()+" cm");
